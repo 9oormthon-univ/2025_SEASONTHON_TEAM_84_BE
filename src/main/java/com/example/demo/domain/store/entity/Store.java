@@ -2,19 +2,13 @@ package com.example.demo.domain.store.entity;
 
 import com.example.demo.domain.auditing.entity.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 착한가격업소 정보를 나타내는 엔티티
- */
 @Getter
 @Entity
 @SuperBuilder
@@ -37,31 +31,26 @@ public class Store extends BaseTimeEntity {
     private Long id;
 
     @Column(name = "store_name", nullable = false, length = 200)
-    private String storeName; // 업소명
+    private String storeName;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "business_type", nullable = false)
-    private BusinessType businessType; // 업종
+    private BusinessType businessType;
 
     @Column(name = "contact_number", length = 20)
-    private String contactNumber; // 연락처
+    private String contactNumber;
 
     @Embedded
-    private Address address; // 주소 정보 (시도, 시군, 전체주소, 좌표)
+    private Address address;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<StoreMenu> menus = new ArrayList<>(); // 메뉴 정보
+    private List<StoreMenu> menus = new ArrayList<>();
 
     @Column(name = "is_active")
     @Builder.Default
-    private boolean isActive = true; // 운영 여부
+    private boolean isActive = true;
 
-    // 편의 메서드들
-    
-    /**
-     * 메뉴 추가
-     */
     public void addMenu(String menuName, BigDecimal price) {
         if (menuName != null && !menuName.trim().isEmpty() && price != null && price.compareTo(BigDecimal.ZERO) > 0) {
             StoreMenu menu = StoreMenu.builder()
@@ -73,18 +62,12 @@ public class Store extends BaseTimeEntity {
         }
     }
 
-    /**
-     * 좌표 정보 업데이트
-     */
     public void updateCoordinates(Double latitude, Double longitude) {
         if (this.address != null) {
             this.address = this.address.updateCoordinates(latitude, longitude);
         }
     }
 
-    /**
-     * 업소 정보 업데이트
-     */
     public Store updateStoreInfo(String storeName, BusinessType businessType, String contactNumber) {
         return Store.builder()
             .id(this.id)
@@ -97,16 +80,10 @@ public class Store extends BaseTimeEntity {
             .build();
     }
 
-    /**
-     * 업소 활성화/비활성화
-     */
     public void toggleActiveStatus() {
         this.isActive = !this.isActive;
     }
 
-    /**
-     * 업소가 특정 지역에 속하는지 확인
-     */
     public boolean isInRegion(String sido, String sigun) {
         if (this.address == null) return false;
         
@@ -118,9 +95,6 @@ public class Store extends BaseTimeEntity {
         return sidoMatch && sigunMatch;
     }
 
-    /**
-     * 좌표 기반 거리 계산을 위한 헬퍼 메서드
-     */
     public boolean isWithinRadius(Double centerLat, Double centerLon, Double radiusKm) {
         if (this.address == null || !this.address.hasValidCoordinates() || 
             centerLat == null || centerLon == null || radiusKm == null) {
@@ -135,11 +109,8 @@ public class Store extends BaseTimeEntity {
         return distance <= radiusKm;
     }
 
-    /**
-     * 하버사인 공식을 이용한 거리 계산 (km 단위)
-     */
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // 지구 반지름 (km)
+        final int R = 6371;
         
         double latDistance = Math.toRadians(lat2 - lat1);
         double lonDistance = Math.toRadians(lon2 - lon1);
@@ -151,5 +122,18 @@ public class Store extends BaseTimeEntity {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         
         return R * c;
+    }
+
+    public static Store create(String storeName,
+                               BusinessType businessType,
+                               String contactNumber,
+                               Address address) {
+        return Store.builder()
+            .storeName(storeName != null ? storeName.trim() : null)
+            .businessType(businessType)
+            .contactNumber(contactNumber != null ? contactNumber.trim() : null)
+            .address(address)
+            .isActive(true)
+            .build();
     }
 }

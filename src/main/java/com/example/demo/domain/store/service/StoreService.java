@@ -5,7 +5,9 @@ import com.example.demo.domain.store.entity.BusinessType;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.exception.StoreErrorStatus;
 import com.example.demo.domain.store.exception.StoreHandler;
+import com.example.demo.domain.store.adaptor.StoreAdaptor;
 import com.example.demo.domain.store.repository.StoreRepository;
+import com.example.demo.domain.store.validator.StoreValidator;
 import com.example.demo.infrastructure.exception.payload.code.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,201 +16,94 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Store 도메인 서비스
- * 업소 생성, 수정, 삭제 등의 비즈니스 로직을 담당
- */
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final StoreAdaptor storeAdaptor;
 
-    /**
-     * 업소 생성
-     */
     public Store createStore(String storeName, BusinessType businessType, String contactNumber,
                            String sido, String sigun, String fullAddress, 
                            Double latitude, Double longitude) {
-        
-        // 업소명 중복 검증
-        validateStoreNameNotExists(storeName);
-        
-        // 연락처 중복 검증 (있는 경우만)
+        storeAdaptor.validateStoreNameNotExists(storeName);
         if (contactNumber != null && !contactNumber.trim().isEmpty()) {
-            validateContactNumberNotExists(contactNumber);
+            storeAdaptor.validateContactNumberNotExists(contactNumber);
         }
-
-        // 주소 객체 생성
         Address address = new Address(sido, sigun, fullAddress, latitude, longitude);
-        
-        // 주소 유효성 검증
-        if (!address.isValidAddress()) {
-            throw new StoreHandler(StoreErrorStatus.INVALID_COORDINATES);
-        }
-
-        // Store 엔티티 생성
-        Store store = Store.builder()
-            .storeName(storeName.trim())
-            .businessType(businessType)
-            .contactNumber(contactNumber != null ? contactNumber.trim() : null)
-            .address(address)
-            .isActive(true)
-            .build();
-
+        validateAddress(address);
+        Store store = Store.create(storeName, businessType, contactNumber, address);
         return storeRepository.save(store);
     }
 
-    /**
-     * 업소 정보 수정
-     */
     public Store updateStore(Long storeId, String storeName, BusinessType businessType, 
                            String contactNumber) {
         Store store = findStoreById(storeId);
-        
-        // 업소명 변경 시 중복 검증
         if (storeName != null && !storeName.equals(store.getStoreName())) {
-            validateStoreNameNotExists(storeName);
+            storeAdaptor.validateStoreNameNotExists(storeName);
         }
-        
-        // 연락처 변경 시 중복 검증
         if (contactNumber != null && !contactNumber.equals(store.getContactNumber())) {
-            validateContactNumberNotExists(contactNumber);
+            storeAdaptor.validateContactNumberNotExists(contactNumber);
         }
 
         Store updatedStore = store.updateStoreInfo(storeName, businessType, contactNumber);
         return storeRepository.save(updatedStore);
     }
 
-    /**
-     * 업소 좌표 정보 업데이트
-     */
     public Store updateStoreCoordinates(Long storeId, Double latitude, Double longitude) {
         Store store = findStoreById(storeId);
-        
-        // 좌표 유효성 검증
-        validateCoordinates(latitude, longitude);
-        
+        StoreValidator.validateCoordinates(latitude, longitude);
         store.updateCoordinates(latitude, longitude);
         return storeRepository.save(store);
     }
 
-    /**
-     * 메뉴 추가
-     */
     public Store addMenu(Long storeId, String menuName, BigDecimal price) {
         Store store = findStoreById(storeId);
-        
-        // 메뉴 정보 검증
-        validateMenuInfo(menuName, price);
-        
+        StoreValidator.validateMenuInfo(menuName, price);
         store.addMenu(menuName, price);
         return storeRepository.save(store);
     }
 
-    /**
-     * 업소 활성화/비활성화
-     */
     public Store toggleStoreStatus(Long storeId) {
         Store store = findStoreById(storeId);
         store.toggleActiveStatus();
         return storeRepository.save(store);
     }
 
-    /**
-     * 업소 삭제 (논리 삭제)
-     */
     public void deleteStore(Long storeId) {
         Store store = findStoreById(storeId);
         if (store.isActive()) {
-            store.toggleActiveStatus(); // 비활성화
+            store.toggleActiveStatus();
             storeRepository.save(store);
         }
     }
 
-    /**
-     * 업소 완전 삭제 (물리 삭제)
-     */
     public void permanentDeleteStore(Long storeId) {
         Store store = findStoreById(storeId);
         storeRepository.delete(store);
     }
 
-    /**
-     * 엑셀 데이터 일괄 등록
-     */
     public List<Store> bulkCreateStores(List<StoreExcelData> excelDataList) {
         return excelDataList.stream()
             .map(this::createStoreFromExcelData)
             .toList();
     }
 
-    // === Private 헬퍼 메서드들 ===
-
-    /**
-     * ID로 업소 조회 (내부용)
-     */
     private Store findStoreById(Long storeId) {
         return storeRepository.findById(storeId)
             .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
     }
 
-    /**
-     * 업소명 중복 검증
-     */
-    private void validateStoreNameNotExists(String storeName) {
-        if (storeRepository.findByStoreName(storeName).isPresent()) {
-            throw new StoreHandler(StoreErrorStatus.STORE_ALREADY_EXISTS);
-        }
-    }
-
-    /**
-     * 연락처 중복 검증
-     */
-    private void validateContactNumberNotExists(String contactNumber) {
-        if (storeRepository.findByContactNumber(contactNumber).isPresent()) {
-            throw new StoreHandler(StoreErrorStatus.STORE_ALREADY_EXISTS);
-        }
-    }
-
-    /**
-     * 좌표 유효성 검증
-     */
-    private void validateCoordinates(Double latitude, Double longitude) {
-        if (latitude == null || longitude == null) {
+    private void validateAddress(Address address) {
+        if (!address.isValidAddress()) {
             throw new StoreHandler(StoreErrorStatus.INVALID_COORDINATES);
         }
-        
-        if (latitude < -90.0 || latitude > 90.0) {
-            throw new StoreHandler(StoreErrorStatus.INVALID_LATITUDE);
-        }
-        
-        if (longitude < -180.0 || longitude > 180.0) {
-            throw new StoreHandler(StoreErrorStatus.INVALID_LONGITUDE);
-        }
     }
 
-    /**
-     * 메뉴 정보 검증
-     */
-    private void validateMenuInfo(String menuName, BigDecimal price) {
-        if (menuName == null || menuName.trim().isEmpty()) {
-            throw new StoreHandler(ErrorStatus._BAD_REQUEST);
-        }
-        
-        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new StoreHandler(StoreErrorStatus.INVALID_MENU_PRICE);
-        }
-    }
-
-    /**
-     * 엑셀 데이터로부터 Store 생성
-     */
     private Store createStoreFromExcelData(StoreExcelData data) {
         try {
             BusinessType businessType = BusinessType.fromString(data.getBusinessType());
-            
             Address address = new Address(
                 data.getSido(),
                 data.getSigun(), 
@@ -217,15 +112,13 @@ public class StoreService {
                 data.getLongitude()
             );
 
-            Store store = Store.builder()
-                .storeName(data.getStoreName())
-                .businessType(businessType)
-                .contactNumber(data.getContactNumber())
-                .address(address)
-                .isActive(true)
-                .build();
+            Store store = Store.create(
+                data.getStoreName(),
+                businessType,
+                data.getContactNumber(),
+                address
+            );
 
-            // 메뉴 추가
             addMenusFromExcelData(store, data);
 
             return storeRepository.save(store);
@@ -235,9 +128,6 @@ public class StoreService {
         }
     }
 
-    /**
-     * 엑셀 데이터에서 메뉴 정보 추가
-     */
     private void addMenusFromExcelData(Store store, StoreExcelData data) {
         if (data.getMenu1() != null && data.getPrice1() != null) {
             store.addMenu(data.getMenu1(), data.getPrice1());
@@ -253,9 +143,6 @@ public class StoreService {
         }
     }
 
-    /**
-     * 엑셀 데이터 DTO (내부 클래스)
-     */
     public static class StoreExcelData {
         private String sido;
         private String sigun;

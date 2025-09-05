@@ -24,9 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 착한가격업소 관련 API 컨트롤러
- */
 @Tag(name = "Store", description = "착한가격업소 관리 API")
 @RestController
 @RequestMapping("/api/v1/stores")
@@ -34,8 +31,6 @@ import java.util.List;
 public class StoreController {
 
     private final StoreUseCase storeUseCase;
-
-    // === 조회 관련 API ===
 
     @Operation(summary = "업소 목록 조회", description = "활성화된 모든 업소 목록을 페이징으로 조회합니다.")
     @ApiResponses({
@@ -45,10 +40,10 @@ public class StoreController {
     @GetMapping
     public ResponseEntity<ApiResponseDto<Page<StoreResponse.StoreInfo>>> getStores(
             @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        
+
         Page<Store> stores = storeUseCase.getActiveStores(pageable);
         Page<StoreResponse.StoreInfo> response = stores.map(StoreResponse.StoreInfo::from);
-        
+
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }
 
@@ -60,7 +55,7 @@ public class StoreController {
     @GetMapping("/{storeId}")
     public ResponseEntity<ApiResponseDto<StoreResponse.StoreDetail>> getStore(
             @Parameter(description = "업소 ID", required = true) @PathVariable Long storeId) {
-        
+
         Store store = storeUseCase.getStoreById(storeId);
         StoreResponse.StoreDetail response = StoreResponse.StoreDetail.from(store);
         
@@ -76,7 +71,7 @@ public class StoreController {
     public ResponseEntity<ApiResponseDto<Page<StoreResponse.StoreInfo>>> searchStores(
             @Parameter(description = "검색 조건") @ModelAttribute @Valid StoreRequest.SearchStore searchRequest,
             @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        
+
         Page<Store> stores = storeUseCase.searchStores(searchRequest.toSearchCondition(), pageable);
         Page<StoreResponse.StoreInfo> response = stores.map(StoreResponse.StoreInfo::from);
         
@@ -92,11 +87,11 @@ public class StoreController {
     public ResponseEntity<ApiResponseDto<Page<StoreResponse.StoreInfo>>> getStoresWithinRadius(
             @Parameter(description = "반경 검색 조건") @ModelAttribute @Valid StoreRequest.RadiusSearch radiusRequest,
             @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        
+
         Page<Store> stores = storeUseCase.getStoresWithinRadius(
-            radiusRequest.getLatitude(), 
-            radiusRequest.getLongitude(), 
-            radiusRequest.getRadiusKm(), 
+            radiusRequest.getLatitude(),
+            radiusRequest.getLongitude(),
+            radiusRequest.getRadiusKm(),
             pageable
         );
         Page<StoreResponse.StoreInfo> response = stores.map(StoreResponse.StoreInfo::from);
@@ -113,7 +108,7 @@ public class StoreController {
     public ResponseEntity<ApiResponseDto<Page<StoreResponse.StoreInfo>>> getStoresByBusinessType(
             @Parameter(description = "업종", required = true) @PathVariable BusinessType businessType,
             @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        
+
         Page<Store> stores = storeUseCase.getStoresByBusinessType(businessType, pageable);
         Page<StoreResponse.StoreInfo> response = stores.map(StoreResponse.StoreInfo::from);
         
@@ -130,7 +125,7 @@ public class StoreController {
             @Parameter(description = "시도", required = true) @RequestParam String sido,
             @Parameter(description = "시군") @RequestParam(required = false) String sigun,
             @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        
+
         Page<Store> stores = storeUseCase.getStoresByRegion(sido, sigun, pageable);
         Page<StoreResponse.StoreInfo> response = stores.map(StoreResponse.StoreInfo::from);
         
@@ -143,7 +138,7 @@ public class StoreController {
     })
     @GetMapping("/map")
     public ResponseEntity<ApiResponseDto<List<StoreResponse.MapStoreInfo>>> getStoresForMap() {
-        
+
         List<Store> stores = storeUseCase.getStoresForMap();
         List<StoreResponse.MapStoreInfo> response = stores.stream()
             .map(StoreResponse.MapStoreInfo::from)
@@ -158,10 +153,10 @@ public class StoreController {
     })
     @GetMapping("/statistics")
     public ResponseEntity<ApiResponseDto<StoreResponse.StoreStats>> getStoreStatistics() {
-        
+
         List<Object[]> businessTypeStats = storeUseCase.getStoreStatsByBusinessType();
         List<Object[]> regionStats = storeUseCase.getStoreStatsByRegion();
-        
+
         List<StoreResponse.BusinessTypeStats> businessTypeList = businessTypeStats.stream()
             .map(row -> StoreResponse.BusinessTypeStats.builder()
                 .businessType((BusinessType) row[0])
@@ -169,7 +164,7 @@ public class StoreController {
                 .count(((Number) row[1]).longValue())
                 .build())
             .toList();
-        
+
         List<StoreResponse.RegionStats> regionList = regionStats.stream()
             .map(row -> StoreResponse.RegionStats.builder()
                 .sido((String) row[0])
@@ -177,19 +172,17 @@ public class StoreController {
                 .count(((Number) row[2]).longValue())
                 .build())
             .toList();
-        
+
         long totalCount = businessTypeList.stream().mapToLong(StoreResponse.BusinessTypeStats::getCount).sum();
-        
+
         StoreResponse.StoreStats response = StoreResponse.StoreStats.builder()
             .businessTypeStats(businessTypeList)
             .regionStats(regionList)
             .totalStoreCount(totalCount)
             .build();
-        
+
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }
-
-    // === 생성/수정/삭제 관련 API ===
 
     @Operation(summary = "업소 생성", description = "새로운 업소를 등록합니다.")
     @ApiResponses({
