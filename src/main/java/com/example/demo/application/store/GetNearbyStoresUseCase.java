@@ -27,19 +27,19 @@ public class GetNearbyStoresUseCase {
 
     /**
      * 사용자 현재 위치 기반 가까운 착한가격업소 조회
-     * 
-     * @param userLatitude 사용자 현재 위도
-     * @param userLongitude 사용자 현재 경도  
-     * @param limit 조회할 업소 개수
-     * @param radiusKm 검색 반경(km) - null이면 반경 제한 없이 가까운 순
      * @return 거리 정보가 포함된 주변 업소 목록 응답
      */
-    public StoreResponse.NearbyStoreList execute(Double userLatitude, Double userLongitude, Integer limit, Double radiusKm) {
-        
+    public StoreResponse.NearbyStoreList execute(StoreRequest.GetNearbyStores request) {
+        Double userLatitude = request.getLatitude();
+        Double userLongitude = request.getLongitude();
+        Integer limit = request.getLimit();
+        Double radiusKm = request.getRadiusKm();
+
         // 입력값 검증
         validateInputParameters(userLatitude, userLongitude, limit, radiusKm);
         
         List<Store> nearbyStores;
+
         if (radiusKm != null) {
             // 반경 내 조회를 Adaptor로 위임 (DB 정렬: 거리순)
             Page<Store> page = storeAdaptor.queryStoresWithinRadius(
@@ -70,24 +70,6 @@ public class GetNearbyStoresUseCase {
         return StoreResponse.NearbyStoreList.from(userLatitude, userLongitude, nearbyStoreDtos);
     }
 
-    /**
-     * 호환성 유지용 오버로드. radiusKm 없이 호출 시 반경 제한 없이 가까운 순으로 조회.
-     */
-    public StoreResponse.NearbyStoreList execute(Double userLatitude, Double userLongitude, Integer limit) {
-        return execute(userLatitude, userLongitude, limit, null);
-    }
-
-    /**
-     * DTO 기반 실행 메서드. Controller에서 DTO를 그대로 전달해 계층 간 파라미터 수를 단순화한다.
-     */
-    public StoreResponse.NearbyStoreList execute(StoreRequest.GetNearbyStores request) {
-        return execute(
-            request.getLatitude(),
-            request.getLongitude(),
-            request.getLimit(),
-            request.getRadiusKm()
-        );
-    }
 
     /**
      * 입력 파라미터 검증
@@ -99,9 +81,9 @@ public class GetNearbyStoresUseCase {
             throw new IllegalArgumentException("조회할 업소 개수는 1 이상이어야 합니다.");
         }
         
-        if (limit > 100) {
-            throw new IllegalArgumentException("조회할 업소 개수는 100개를 초과할 수 없습니다.");
-        }
+//        if (limit > 100) {
+//            throw new IllegalArgumentException("조회할 업소 개수는 100개를 초과할 수 없습니다.");
+//        }
 
         if (radiusKm != null) {
             StoreValidator.validateRadius(radiusKm);
