@@ -18,7 +18,7 @@ import java.util.List;
     name = "store",
     indexes = {
         @Index(name = "idx_store_name", columnList = "storeName"),
-        @Index(name = "idx_store_business_type", columnList = "businessType"),
+        @Index(name = "idx_store_category", columnList = "category"),
         @Index(name = "idx_store_sido_sigun", columnList = "sido, sigun"),
         @Index(name = "idx_store_coordinates", columnList = "latitude, longitude")
     }

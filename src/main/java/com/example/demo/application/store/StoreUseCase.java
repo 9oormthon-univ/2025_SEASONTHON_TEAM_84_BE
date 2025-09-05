@@ -100,13 +100,6 @@ public class StoreUseCase {
     }
 
     /**
-     * 통계 정보 조회 - 업종별 업소 수
-     */
-    public List<Object[]> getStoreStatsByBusinessType() {
-        return storeAdaptor.queryStoreCountByBusinessType();
-    }
-
-    /**
      * 통계 정보 조회 - 지역별 업소 수
      */
     public List<Object[]> getStoreStatsByRegion() {

@@ -150,43 +150,6 @@ public class StoreController {
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }
 
-    @Operation(summary = "업소 통계 조회", description = "업종별, 지역별 업소 통계를 조회합니다.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공")
-    })
-    @GetMapping("/statistics")
-    public ResponseEntity<ApiResponseDto<StoreResponse.StoreStats>> getStoreStatistics() {
-
-        List<Object[]> businessTypeStats = storeUseCase.getStoreStatsByBusinessType();
-        List<Object[]> regionStats = storeUseCase.getStoreStatsByRegion();
-
-        List<StoreResponse.BusinessTypeStats> businessTypeList = businessTypeStats.stream()
-            .map(row -> StoreResponse.BusinessTypeStats.builder()
-                .businessType((Category) row[0])
-                .businessTypeDescription(((Category) row[0]).getDescription())
-                .count(((Number) row[1]).longValue())
-                .build())
-            .toList();
-
-        List<StoreResponse.RegionStats> regionList = regionStats.stream()
-            .map(row -> StoreResponse.RegionStats.builder()
-                .sido((String) row[0])
-                .sigun((String) row[1])
-                .count(((Number) row[2]).longValue())
-                .build())
-            .toList();
-
-        long totalCount = businessTypeList.stream().mapToLong(StoreResponse.BusinessTypeStats::getCount).sum();
-
-        StoreResponse.StoreStats response = StoreResponse.StoreStats.builder()
-            .businessTypeStats(businessTypeList)
-            .regionStats(regionList)
-            .totalStoreCount(totalCount)
-            .build();
-
-        return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
-    }
-
     @Operation(summary = "업소 생성", description = "새로운 업소를 등록합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "생성 성공"),

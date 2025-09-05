@@ -41,7 +41,7 @@ public class StoreAdaptor {
     }
 
     public Page<Store> queryByBusinessType(Category businessType, Pageable pageable) {
-        return storeRepository.findByBusinessTypeAndIsActiveTrue(businessType, pageable);
+        return storeRepository.findByCategoryAndIsActiveTrue(businessType, pageable);
     }
 
     public Page<Store> queryByRegion(String sido, String sigun, Pageable pageable) {
@@ -63,14 +63,14 @@ public class StoreAdaptor {
     public Page<Store> queryByBusinessTypeAndRegion(Category businessType, 
                                                    String sido, String sigun, 
                                                    Pageable pageable) {
-        return storeRepository.findByBusinessTypeAndRegion(businessType, sido, sigun, pageable);
+        return storeRepository.findByCategoryTypeAndRegion(businessType, sido, sigun, pageable);
     }
 
     public Page<Store> queryByStoreNameAndBusinessTypeAndSido(String storeName,
                                                              Category businessType,
                                                              String sido,
                                                              Pageable pageable) {
-        return storeRepository.findByStoreNameAndBusinessTypeAndSido(
+        return storeRepository.findByStoreNameAndCategoryAndSido(
             storeName, businessType, sido, pageable);
     }
 
@@ -87,7 +87,7 @@ public class StoreAdaptor {
     }
 
     public List<Object[]> queryStoreCountByBusinessType() {
-        return storeRepository.countByBusinessType();
+        return storeRepository.countByCategory();
     }
 
     public List<Object[]> queryStoreCountByRegion() {

@@ -29,7 +29,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /**
      * 업종별 검색 (활성화된 업소만)
      */
-    Page<Store> findByBusinessTypeAndIsActiveTrue(Category businessType, Pageable pageable);
+    Page<Store> findByCategoryAndIsActiveTrue(Category category, Pageable pageable);
 
     /**
      * 지역별 검색 (시도, 시군)
@@ -79,11 +79,11 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /**
      * 복합 검색: 업종 + 지역
      */
-    @Query("SELECT s FROM Store s WHERE s.businessType = :businessType " +
+    @Query("SELECT s FROM Store s WHERE s.category = :category " +
            "AND s.address.sido LIKE %:sido% AND s.address.sigun LIKE %:sigun% " +
            "AND s.isActive = true")
-    Page<Store> findByBusinessTypeAndRegion(
-        @Param("businessType") Category businessType,
+    Page<Store> findByCategoryTypeAndRegion(
+        @Param("category") Category category,
         @Param("sido") String sido,
         @Param("sigun") String sigun,
         Pageable pageable
@@ -93,12 +93,12 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
      * 복합 검색: 업소명 + 업종 + 지역
      */
     @Query("SELECT s FROM Store s WHERE s.storeName LIKE %:storeName% " +
-           "AND s.businessType = :businessType " +
+           "AND s.category = :category " +
            "AND s.address.sido LIKE %:sido% " +
            "AND s.isActive = true")
-    Page<Store> findByStoreNameAndBusinessTypeAndSido(
+    Page<Store> findByStoreNameAndCategoryAndSido(
         @Param("storeName") String storeName,
-        @Param("businessType") Category businessType,
+        @Param("category") Category category,
         @Param("sido") String sido,
         Pageable pageable
     );
@@ -130,8 +130,8 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /**
      * 업종별 업소 수 조회
      */
-    @Query("SELECT s.businessType, COUNT(s) FROM Store s WHERE s.isActive = true GROUP BY s.businessType")
-    List<Object[]> countByBusinessType();
+    @Query("SELECT s.category, COUNT(s) FROM Store s WHERE s.isActive = true GROUP BY s.category")
+    List<Object[]> countByCategory();
 
     /**
      * 지역별 업소 수 조회
