@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "StoreDataInit", description = "초기 데이터 세팅용 업로드 API")
 @RestController
-@RequestMapping("/api/v1/init/stores")
+@RequestMapping("/init/stores")
 @RequiredArgsConstructor
 public class StoreDataInitController {
 
