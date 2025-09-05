@@ -44,13 +44,13 @@ public class Store extends BaseTimeEntity {
     @Column(name = "sub_category", nullable = false, length = 50)
     private String subCategory;
 
-    @Column(name = "contact_number", length = 20)
+    @Column(name = "contact_number", length = 100)
     private String contactNumber;
 
     @Embedded
     private Address address;
 
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     @Builder.Default
     private List<StoreMenu> menus = new ArrayList<>();
 
@@ -59,11 +59,16 @@ public class Store extends BaseTimeEntity {
     private boolean isActive = true;
 
     public void addMenu(String menuName, BigDecimal price) {
+        addMenu(menuName, price, this.menus.size() + 1);
+    }
+
+    public void addMenu(String menuName, BigDecimal price, int menuOrder) {
         if (menuName != null && !menuName.trim().isEmpty() && price != null && price.compareTo(BigDecimal.ZERO) > 0) {
             StoreMenu menu = StoreMenu.builder()
                 .store(this)
                 .menuName(menuName.trim())
                 .price(price)
+                .menuOrder(menuOrder)
                 .build();
             this.menus.add(menu);
         }
