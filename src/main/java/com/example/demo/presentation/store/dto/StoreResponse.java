@@ -299,4 +299,124 @@ public class StoreResponse {
         @Schema(description = "업소 수", example = "100")
         private long count;
     }
+
+    /**
+     * 거리 정보가 포함된 업소 응답 DTO
+     */
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "거리 정보가 포함된 업소 응답")
+    public static class NearbyStore {
+        
+        @Schema(description = "업소 ID", example = "1")
+        private Long storeId;
+        
+        @Schema(description = "업소명", example = "착한식당")
+        private String storeName;
+        
+        @Schema(description = "업종", example = "RESTAURANT")
+        private BusinessType businessType;
+        
+        @Schema(description = "업종 설명", example = "음식점")
+        private String businessTypeDescription;
+        
+        @Schema(description = "연락처", example = "02-1234-5678")
+        private String contactNumber;
+        
+        @Schema(description = "주소 정보")
+        private AddressInfo address;
+        
+        @Schema(description = "메뉴 목록")
+        private List<MenuInfo> menus;
+        
+        @Schema(description = "사용자로부터의 거리(km)", example = "1.25")
+        private Double distanceKm;
+        
+        @Schema(description = "활성화 여부", example = "true")
+        private boolean isActive;
+        
+        @Schema(description = "생성일시", example = "2024-01-01T00:00:00")
+        private LocalDateTime createdDate;
+        
+        @Schema(description = "수정일시", example = "2024-01-01T00:00:00")
+        private LocalDateTime lastModifiedDate;
+
+        public static NearbyStore from(Store store, Double distanceKm) {
+            return NearbyStore.builder()
+                .storeId(store.getId())
+                .storeName(store.getStoreName())
+                .businessType(store.getBusinessType())
+                .businessTypeDescription(store.getBusinessType().getDescription())
+                .contactNumber(store.getContactNumber())
+                .address(AddressInfo.from(store.getAddress()))
+                .menus(store.getMenus().stream()
+                    .map(MenuInfo::from)
+                    .toList())
+                .distanceKm(Math.round(distanceKm * 100.0) / 100.0) // 소수점 2자리까지 반올림
+                .isActive(store.isActive())
+                .createdDate(store.getCreatedDate())
+                .lastModifiedDate(store.getLastModifiedDate())
+                .build();
+        }
+    }
+
+    /**
+     * 주변 업소 목록 응답 DTO
+     */
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "주변 업소 목록 응답")
+    public static class NearbyStoreList {
+        
+        @Schema(description = "사용자 위치 정보")
+        private UserLocationInfo userLocation;
+        
+        @Schema(description = "주변 업소 목록")
+        private List<NearbyStore> stores;
+        
+        @Schema(description = "조회된 업소 개수", example = "10")
+        private Integer totalCount;
+        
+        @Schema(description = "최대 거리(km)", example = "5.67")
+        private Double maxDistanceKm;
+
+        public static NearbyStoreList from(Double userLatitude, Double userLongitude, 
+                                          List<NearbyStore> nearbyStores) {
+            Double maxDistance = nearbyStores.stream()
+                .mapToDouble(NearbyStore::getDistanceKm)
+                .max()
+                .orElse(0.0);
+                
+            return NearbyStoreList.builder()
+                .userLocation(UserLocationInfo.builder()
+                    .latitude(userLatitude)
+                    .longitude(userLongitude)
+                    .build())
+                .stores(nearbyStores)
+                .totalCount(nearbyStores.size())
+                .maxDistanceKm(Math.round(maxDistance * 100.0) / 100.0)
+                .build();
+        }
+    }
+
+    /**
+     * 사용자 위치 정보 DTO
+     */
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "사용자 위치 정보")
+    public static class UserLocationInfo {
+        
+        @Schema(description = "위도", example = "37.5665")
+        private Double latitude;
+        
+        @Schema(description = "경도", example = "126.9780")
+        private Double longitude;
+    }
 }

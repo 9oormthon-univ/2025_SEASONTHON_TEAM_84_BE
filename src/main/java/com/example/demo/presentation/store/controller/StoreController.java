@@ -1,5 +1,6 @@
 package com.example.demo.presentation.store.controller;
 
+import com.example.demo.application.store.GetNearbyStoresUseCase;
 import com.example.demo.application.store.StoreUseCase;
 import com.example.demo.domain.store.entity.BusinessType;
 import com.example.demo.domain.store.entity.Store;
@@ -31,6 +32,7 @@ import java.util.List;
 public class StoreController {
 
     private final StoreUseCase storeUseCase;
+    private final GetNearbyStoresUseCase getNearbyStoresUseCase;
 
     @Operation(summary = "업소 목록 조회", description = "활성화된 모든 업소 목록을 페이징으로 조회합니다.")
     @ApiResponses({
@@ -143,6 +145,21 @@ public class StoreController {
         List<StoreResponse.MapStoreInfo> response = stores.stream()
             .map(StoreResponse.MapStoreInfo::from)
             .toList();
+        
+        return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
+    }
+
+    @Operation(summary = "현재 위치 기반 가까운 업소 조회", description = "사용자의 현재 위치를 기준으로 가장 가까운 착한가격업소들을 거리순으로 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 위치 정보 또는 제한 개수", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
+    })
+    @PostMapping("/nearby")
+    public ResponseEntity<ApiResponseDto<StoreResponse.NearbyStoreList>> getNearbyStores(
+            @Parameter(description = "현재 위치 기반 조회 조건") @RequestBody @Valid StoreRequest.GetNearbyStores nearbyRequest) {
+
+        // DTO 기반 UseCase 호출 (반경 옵션 포함)
+        StoreResponse.NearbyStoreList response = getNearbyStoresUseCase.execute(nearbyRequest);
         
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }

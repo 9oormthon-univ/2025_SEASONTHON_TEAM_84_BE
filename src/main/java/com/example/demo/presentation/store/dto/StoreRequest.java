@@ -217,4 +217,38 @@ public class StoreRequest {
         @Schema(description = "검색 반경(km)", example = "5.0", required = true)
         private Double radiusKm;
     }
+
+    /**
+     * 현재 위치 기반 가까운 업소 조회 요청 DTO
+     */
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "현재 위치 기반 가까운 업소 조회 요청")
+    public static class GetNearbyStores {
+        
+        @NotNull(message = "위도는 필수입니다.")
+        @DecimalMin(value = "-90.0", message = "위도는 -90 이상이어야 합니다.")
+        @DecimalMax(value = "90.0", message = "위도는 90 이하여야 합니다.")
+        @Schema(description = "사용자 현재 위도", example = "37.5665", required = true)
+        private Double latitude;
+        
+        @NotNull(message = "경도는 필수입니다.")
+        @DecimalMin(value = "-180.0", message = "경도는 -180 이상이어야 합니다.")
+        @DecimalMax(value = "180.0", message = "경도는 180 이하여야 합니다.")
+        @Schema(description = "사용자 현재 경도", example = "126.9780", required = true)
+        private Double longitude;
+        
+        @NotNull(message = "조회할 업소 개수는 필수입니다.")
+        @Min(value = 1, message = "조회할 업소 개수는 최소 1개입니다.")
+        @Max(value = 100, message = "조회할 업소 개수는 최대 100개입니다.")
+        @Schema(description = "조회할 업소 개수", example = "10", required = true)
+        private Integer limit;
+
+        @DecimalMin(value = "0.1", message = "반경은 0.1km 이상이어야 합니다.")
+        @DecimalMax(value = "100.0", message = "반경은 100km 이하여야 합니다.")
+        @Schema(description = "검색 반경(km) [옵션]", example = "5.0")
+        private Double radiusKm;
+    }
 }
