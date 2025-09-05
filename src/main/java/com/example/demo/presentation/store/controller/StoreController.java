@@ -1,5 +1,6 @@
 package com.example.demo.presentation.store.controller;
 
+import com.example.demo.application.store.GetNearbyStoresUseCase;
 import com.example.demo.application.store.StoreUseCase;
 import com.example.demo.domain.store.entity.BusinessType;
 import com.example.demo.domain.store.entity.Store;
@@ -31,21 +32,7 @@ import java.util.List;
 public class StoreController {
 
     private final StoreUseCase storeUseCase;
-
-    @Operation(summary = "업소 목록 조회", description = "활성화된 모든 업소 목록을 페이징으로 조회합니다.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
-    })
-    @GetMapping
-    public ResponseEntity<ApiResponseDto<Page<StoreResponse.StoreInfo>>> getStores(
-            @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Page<Store> stores = storeUseCase.getActiveStores(pageable);
-        Page<StoreResponse.StoreInfo> response = stores.map(StoreResponse.StoreInfo::from);
-
-        return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
-    }
+    private final GetNearbyStoresUseCase getNearbyStoresUseCase;
 
     @Operation(summary = "업소 상세 조회", description = "업소 ID로 상세 정보를 조회합니다.")
     @ApiResponses({
@@ -78,26 +65,6 @@ public class StoreController {
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }
 
-    @Operation(summary = "반경 내 업소 검색", description = "지정된 좌표를 중심으로 반경 내 업소를 검색합니다.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "검색 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 좌표 또는 반경", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
-    })
-    @GetMapping("/radius")
-    public ResponseEntity<ApiResponseDto<Page<StoreResponse.StoreInfo>>> getStoresWithinRadius(
-            @Parameter(description = "반경 검색 조건") @ModelAttribute @Valid StoreRequest.RadiusSearch radiusRequest,
-            @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Page<Store> stores = storeUseCase.getStoresWithinRadius(
-            radiusRequest.getLatitude(),
-            radiusRequest.getLongitude(),
-            radiusRequest.getRadiusKm(),
-            pageable
-        );
-        Page<StoreResponse.StoreInfo> response = stores.map(StoreResponse.StoreInfo::from);
-        
-        return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
-    }
 
     @Operation(summary = "업종별 업소 조회", description = "특정 업종의 업소 목록을 조회합니다.")
     @ApiResponses({
@@ -132,17 +99,17 @@ public class StoreController {
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }
 
-    @Operation(summary = "지도용 업소 정보 조회", description = "지도 표시를 위한 좌표가 있는 업소 정보를 조회합니다.")
+    @Operation(summary = "현재 위치 기반 가까운 업소 조회", description = "사용자의 현재 위치를 기준으로 가장 가까운 착한가격업소들을 거리순으로 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공")
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 위치 정보 또는 제한 개수", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
-    @GetMapping("/map")
-    public ResponseEntity<ApiResponseDto<List<StoreResponse.MapStoreInfo>>> getStoresForMap() {
+    @PostMapping("/nearby")
+    public ResponseEntity<ApiResponseDto<StoreResponse.NearbyStoreList>> getNearbyStores(
+            @Parameter(description = "현재 위치 기반 조회 조건") @RequestBody @Valid StoreRequest.GetNearbyStores nearbyRequest) {
 
-        List<Store> stores = storeUseCase.getStoresForMap();
-        List<StoreResponse.MapStoreInfo> response = stores.stream()
-            .map(StoreResponse.MapStoreInfo::from)
-            .toList();
+        // DTO 기반 UseCase 호출 (반경 옵션 포함)
+        StoreResponse.NearbyStoreList response = getNearbyStoresUseCase.execute(nearbyRequest);
         
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }
