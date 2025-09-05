@@ -18,6 +18,11 @@ spring:
       hibernate:
         format_sql: true  # SQL 포맷 정렬 여부
         show_sql: true
+        jdbc:
+          batch_size: 1000  # 배치 삽입 크기
+          order_inserts: true  # 삽입 SQL 정렬
+          order_updates: true  # 업데이트 SQL 정렬
+          batch_versioned_data: true  # 버전 관리 데이터 배치 처리
 
   security:
     oauth2:
