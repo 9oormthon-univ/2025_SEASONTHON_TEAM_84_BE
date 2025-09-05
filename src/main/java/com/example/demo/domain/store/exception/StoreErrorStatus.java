@@ -23,7 +23,8 @@ public enum StoreErrorStatus implements BaseCode {
     INVALID_RADIUS(BAD_REQUEST, 4306, "유효하지 않은 반경값입니다."),
     RADIUS_TOO_LARGE(BAD_REQUEST, 4307, "검색 반경이 너무 큽니다. (최대 100km)"),
     INVALID_BUSINESS_TYPE(BAD_REQUEST, 4308, "유효하지 않은 업종입니다."),
-    INVALID_MENU_PRICE(BAD_REQUEST, 4309, "유효하지 않은 메뉴 가격입니다."),;
+    INVALID_MENU_PRICE(BAD_REQUEST, 4309, "유효하지 않은 메뉴 가격입니다."),
+    INVALID_LIMIT(BAD_REQUEST, 4310, "유효하지 않은 조회 개수입니다. (1 ~ 100)"),;
 
     private final HttpStatus httpStatus;
     private final Integer code;

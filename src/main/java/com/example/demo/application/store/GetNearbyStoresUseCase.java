@@ -2,6 +2,8 @@ package com.example.demo.application.store;
 
 import com.example.demo.domain.store.adaptor.StoreAdaptor;
 import com.example.demo.domain.store.entity.Store;
+import com.example.demo.domain.store.exception.StoreErrorStatus;
+import com.example.demo.domain.store.exception.StoreHandler;
 import com.example.demo.domain.store.validator.StoreValidator;
 import com.example.demo.domain.store.util.DistanceUtils;
 import com.example.demo.infrastructure.annotation.usecase.UseCase;
@@ -78,12 +80,12 @@ public class GetNearbyStoresUseCase {
         StoreValidator.validateCoordinates(latitude, longitude);
 
         if (limit == null || limit <= 0) {
-            throw new IllegalArgumentException("조회할 업소 개수는 1 이상이어야 합니다.");
+            throw new StoreHandler(StoreErrorStatus.INVALID_LIMIT);
         }
         
-//        if (limit > 100) {
-//            throw new IllegalArgumentException("조회할 업소 개수는 100개를 초과할 수 없습니다.");
-//        }
+        if (limit > 100) {
+            throw new StoreHandler(StoreErrorStatus.INVALID_LIMIT);
+        }
 
         if (radiusKm != null) {
             StoreValidator.validateRadius(radiusKm);
