@@ -1,6 +1,6 @@
 package com.example.demo.domain.store.vo;
 
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class StoreSearchCondition {
 
     private String storeName;
-    private BusinessType businessType;
+    private Category businessType;
     private String sido;
     private String sigun;
     private Double latitude;

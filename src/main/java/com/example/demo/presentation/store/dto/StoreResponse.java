@@ -1,6 +1,6 @@
 package com.example.demo.presentation.store.dto;
 
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.entity.StoreMenu;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,10 +35,16 @@ public class StoreResponse {
         private String storeName;
         
         @Schema(description = "업종", example = "RESTAURANT")
-        private BusinessType businessType;
+        private Category businessType;
         
         @Schema(description = "업종 설명", example = "음식점")
         private String businessTypeDescription;
+
+        @Schema(description = "대분류", example = "한식")
+        private String majorCategory;
+
+        @Schema(description = "소분류", example = "육류")
+        private String subCategory;
         
         @Schema(description = "연락처", example = "02-1234-5678")
         private String contactNumber;
@@ -59,9 +65,11 @@ public class StoreResponse {
             return StoreInfo.builder()
                 .storeId(store.getId())
                 .storeName(store.getStoreName())
-                .businessType(store.getBusinessType())
-                .businessTypeDescription(store.getBusinessType().getDescription())
+                .businessType(store.getCategory())
+                .businessTypeDescription(store.getCategory().getDescription())
                 .contactNumber(store.getContactNumber())
+                .majorCategory(store.getMajorCategory())
+                .subCategory(store.getSubCategory())
                 .address(AddressInfo.from(store.getAddress()))
                 .isActive(store.isActive())
                 .createdDate(store.getCreatedDate())
@@ -87,10 +95,16 @@ public class StoreResponse {
         private String storeName;
         
         @Schema(description = "업종", example = "RESTAURANT")
-        private BusinessType businessType;
+        private Category businessType;
         
         @Schema(description = "업종 설명", example = "음식점")
         private String businessTypeDescription;
+
+        @Schema(description = "대분류", example = "한식")
+        private String majorCategory;
+
+        @Schema(description = "소분류", example = "육류")
+        private String subCategory;
         
         @Schema(description = "연락처", example = "02-1234-5678")
         private String contactNumber;
@@ -114,10 +128,12 @@ public class StoreResponse {
             return StoreDetail.builder()
                 .storeId(store.getId())
                 .storeName(store.getStoreName())
-                .businessType(store.getBusinessType())
-                .businessTypeDescription(store.getBusinessType().getDescription())
+                .businessType(store.getCategory())
+                .businessTypeDescription(store.getCategory().getDescription())
                 .contactNumber(store.getContactNumber())
                 .address(AddressInfo.from(store.getAddress()))
+                .majorCategory(store.getMajorCategory())
+                .subCategory(store.getSubCategory())
                 .menus(store.getMenus().stream()
                     .map(MenuInfo::from)
                     .toList())
@@ -145,7 +161,7 @@ public class StoreResponse {
         private String storeName;
         
         @Schema(description = "업종", example = "RESTAURANT")
-        private BusinessType businessType;
+        private Category businessType;
         
         @Schema(description = "위도", example = "37.5665")
         private Double latitude;
@@ -160,7 +176,7 @@ public class StoreResponse {
             return MapStoreInfo.builder()
                 .storeId(store.getId())
                 .storeName(store.getStoreName())
-                .businessType(store.getBusinessType())
+                .businessType(store.getCategory())
                 .latitude(store.getAddress().getLatitude())
                 .longitude(store.getAddress().getLongitude())
                 .address(store.getAddress().getFullAddress())
@@ -271,7 +287,7 @@ public class StoreResponse {
     public static class BusinessTypeStats {
         
         @Schema(description = "업종", example = "RESTAURANT")
-        private BusinessType businessType;
+        private Category businessType;
         
         @Schema(description = "업종 설명", example = "음식점")
         private String businessTypeDescription;

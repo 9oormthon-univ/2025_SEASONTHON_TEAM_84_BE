@@ -2,7 +2,7 @@ package com.example.demo.domain.store.service;
 
 
 import com.example.demo.domain.store.entity.Address;
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.entity.StoreMenu;
 import com.example.demo.domain.store.repository.StoreMenuRepository;
@@ -222,7 +222,7 @@ public class StoreExcelService {
                 return null;
             }
             
-            BusinessType businessType = BusinessType.fromString(businessTypeStr);
+            Category businessType = Category.fromString(businessTypeStr);
             Address address = new Address(sido, sigun, fullAddress, latitude, longitude);
             
             return Store.create(storeName, businessType, contactNumber, address);
@@ -279,7 +279,7 @@ public class StoreExcelService {
                 return null;
             }
             
-            BusinessType businessType = BusinessType.fromString(businessTypeStr);
+            Category businessType = Category.fromString(businessTypeStr);
             Address address = new Address(sido, sigun, fullAddress, latitude, longitude);
             
             return Store.create(storeName, businessType, 

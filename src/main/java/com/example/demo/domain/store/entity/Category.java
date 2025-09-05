@@ -1,16 +1,20 @@
 package com.example.demo.domain.store.entity;
 
 import java.util.Map;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Collections;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 업종 분류를 나타내는 열거형
+ * 업종(카테고리) 분류를 나타내는 열거형
  */
 @Getter
 @RequiredArgsConstructor
-public enum BusinessType {
+public enum Category {
     RESTAURANT("음식점"),
     CAFE("카페"),
     CONVENIENCE_STORE("편의점"),
@@ -26,14 +30,14 @@ public enum BusinessType {
     private final String description;
 
     /**
-     * 문자열로부터 BusinessType을 찾아 반환
+     * 문자열로부터 Category을 찾아 반환
      */
-    public static BusinessType fromString(String businessType) {
+    public static Category fromString(String businessType) {
         if (businessType == null || businessType.trim().isEmpty()) {
             return ETC;
         }
         final String normalized = normalize(businessType.trim());
-        BusinessType mapped = TEXT_TO_TYPE.get(normalized);
+        Category mapped = TEXT_TO_TYPE.get(normalized);
         return mapped != null ? mapped : ETC;
     }
 
@@ -48,7 +52,7 @@ public enum BusinessType {
     }
 
     // 엑셀에서 오는 원본 라벨 전체를 정확 매핑
-    private static final Map<String, BusinessType> TEXT_TO_TYPE = Map.ofEntries(
+    private static final Map<String, Category> TEXT_TO_TYPE = Map.ofEntries(
         // 한식 계열 및 외식/요식업 전반 → RESTAURANT
         Map.entry(normalize("한식_육류"), RESTAURANT),
         Map.entry(normalize("한식_일반"), RESTAURANT),
@@ -191,7 +195,7 @@ public enum BusinessType {
             return new Classification(ETC, "기타", "일반");
         }
         String key = normalize(businessTypeLabel.trim());
-        BusinessType type = fromString(businessTypeLabel);
+        Category type = fromString(businessTypeLabel);
         Detail detail = TEXT_TO_DETAIL.get(key);
         if (detail == null) {
             String major = switch (type) {
@@ -212,6 +216,52 @@ public enum BusinessType {
         return new Classification(type, detail.major(), detail.sub());
     }
 
-    public static record Classification(BusinessType type, String majorCategory, String subCategory) {}
+    /**
+     * 대분류 → 소분류 목록 맵 (UI 선택용)
+     * - 기존 TEXT_TO_DETAIL 매핑으로부터 역으로 구성한다.
+     * - 순서는 선언(등장) 순서를 따르도록 LinkedHash* 를 사용한다.
+     */
+    private static final Map<String, List<String>> MAJOR_TO_SUBS;
+
+    static {
+        Map<String, LinkedHashSet<String>> temp = new LinkedHashMap<>();
+        for (Detail detail : TEXT_TO_DETAIL.values()) {
+            temp.computeIfAbsent(detail.major(), k -> new LinkedHashSet<>()).add(detail.sub());
+        }
+        Map<String, List<String>> finalized = new LinkedHashMap<>();
+        for (Map.Entry<String, LinkedHashSet<String>> e : temp.entrySet()) {
+            finalized.put(e.getKey(), List.copyOf(e.getValue()));
+        }
+        MAJOR_TO_SUBS = Collections.unmodifiableMap(finalized);
+    }
+
+    /**
+     * 대분류 전체 목록 반환 (등장 순서 유지)
+     */
+    public static List<String> listMajors() {
+        return List.copyOf(MAJOR_TO_SUBS.keySet());
+    }
+
+    /**
+     * 특정 대분류에 속한 소분류 목록 반환 (없으면 빈 리스트)
+     */
+    public static List<String> listSubCategories(String majorCategory) {
+        if (majorCategory == null) {
+            return List.of();
+        }
+        List<String> subs = MAJOR_TO_SUBS.get(majorCategory.trim());
+        return subs != null ? subs : List.of();
+    }
+
+    /**
+     * 대분류→소분류 전체 맵 반환 (불변 뷰)
+     */
+    public static Map<String, List<String>> listMajorToSubcategories() {
+        return MAJOR_TO_SUBS;
+    }
+
+    public static record Classification(Category type, String majorCategory, String subCategory) {}
     private static record Detail(String major, String sub) {}
 }
+
+

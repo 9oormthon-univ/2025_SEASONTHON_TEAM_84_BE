@@ -1,7 +1,7 @@
 package com.example.demo.presentation.store.controller;
 
 import com.example.demo.application.store.StoreUseCase;
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.service.StoreExcelService;
 import com.example.demo.infrastructure.exception.payload.dto.ApiResponseDto;
@@ -109,7 +109,7 @@ public class StoreController {
     })
     @GetMapping("/business-type/{businessType}")
     public ResponseEntity<ApiResponseDto<Page<StoreResponse.StoreInfo>>> getStoresByBusinessType(
-            @Parameter(description = "업종", required = true) @PathVariable BusinessType businessType,
+            @Parameter(description = "업종", required = true) @PathVariable Category businessType,
             @PageableDefault(size = 20, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<Store> stores = storeUseCase.getStoresByBusinessType(businessType, pageable);
@@ -162,8 +162,8 @@ public class StoreController {
 
         List<StoreResponse.BusinessTypeStats> businessTypeList = businessTypeStats.stream()
             .map(row -> StoreResponse.BusinessTypeStats.builder()
-                .businessType((BusinessType) row[0])
-                .businessTypeDescription(((BusinessType) row[0]).getDescription())
+                .businessType((Category) row[0])
+                .businessTypeDescription(((Category) row[0]).getDescription())
                 .count(((Number) row[1]).longValue())
                 .build())
             .toList();
@@ -205,7 +205,9 @@ public class StoreController {
             createRequest.getSigun(),
             createRequest.getFullAddress(),
             createRequest.getLatitude(),
-            createRequest.getLongitude()
+            createRequest.getLongitude(),
+            createRequest.getMajorCategory(),
+            createRequest.getSubCategory()
         );
         
         StoreResponse.StoreDetail response = StoreResponse.StoreDetail.from(store);
@@ -227,7 +229,9 @@ public class StoreController {
             storeId,
             updateRequest.getStoreName(),
             updateRequest.getBusinessType(),
-            updateRequest.getContactNumber()
+            updateRequest.getContactNumber(),
+            updateRequest.getMajorCategory(),
+            updateRequest.getSubCategory()
         );
         
         StoreResponse.StoreDetail response = StoreResponse.StoreDetail.from(store);

@@ -1,6 +1,6 @@
 package com.example.demo.domain.store.repository;
 
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +29,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /**
      * 업종별 검색 (활성화된 업소만)
      */
-    Page<Store> findByBusinessTypeAndIsActiveTrue(BusinessType businessType, Pageable pageable);
+    Page<Store> findByBusinessTypeAndIsActiveTrue(Category businessType, Pageable pageable);
 
     /**
      * 지역별 검색 (시도, 시군)
@@ -83,7 +83,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
            "AND s.address.sido LIKE %:sido% AND s.address.sigun LIKE %:sigun% " +
            "AND s.isActive = true")
     Page<Store> findByBusinessTypeAndRegion(
-        @Param("businessType") BusinessType businessType,
+        @Param("businessType") Category businessType,
         @Param("sido") String sido,
         @Param("sigun") String sigun,
         Pageable pageable
@@ -98,7 +98,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
            "AND s.isActive = true")
     Page<Store> findByStoreNameAndBusinessTypeAndSido(
         @Param("storeName") String storeName,
-        @Param("businessType") BusinessType businessType,
+        @Param("businessType") Category businessType,
         @Param("sido") String sido,
         Pageable pageable
     );

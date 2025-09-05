@@ -1,7 +1,7 @@
 package com.example.demo.application.store;
 
 import com.example.demo.domain.store.adaptor.StoreAdaptor;
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.store.vo.StoreSearchCondition;
@@ -73,7 +73,7 @@ public class StoreUseCase {
     /**
      * 업종별 업소 조회
      */
-    public Page<Store> getStoresByBusinessType(BusinessType businessType, Pageable pageable) {
+    public Page<Store> getStoresByBusinessType(Category businessType, Pageable pageable) {
         return storeAdaptor.queryByBusinessType(businessType, pageable);
     }
 
@@ -119,12 +119,14 @@ public class StoreUseCase {
      * 업소 생성
      */
     @Transactional
-    public Store createStore(String storeName, BusinessType businessType, String contactNumber,
+    public Store createStore(String storeName, Category businessType, String contactNumber,
                            String sido, String sigun, String fullAddress, 
-                           Double latitude, Double longitude) {
+                           Double latitude, Double longitude,
+                           String majorCategory, String subCategory) {
         return storeService.createStore(
             storeName, businessType, contactNumber,
-            sido, sigun, fullAddress, latitude, longitude
+            sido, sigun, fullAddress, latitude, longitude,
+            majorCategory, subCategory
         );
     }
 
@@ -132,9 +134,9 @@ public class StoreUseCase {
      * 업소 정보 수정
      */
     @Transactional
-    public Store updateStore(Long storeId, String storeName, BusinessType businessType, 
-                           String contactNumber) {
-        return storeService.updateStore(storeId, storeName, businessType, contactNumber);
+    public Store updateStore(Long storeId, String storeName, Category businessType, 
+                           String contactNumber, String majorCategory, String subCategory) {
+        return storeService.updateStore(storeId, storeName, businessType, contactNumber, majorCategory, subCategory);
     }
 
     /**

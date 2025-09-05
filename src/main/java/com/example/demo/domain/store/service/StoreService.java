@@ -1,7 +1,7 @@
 package com.example.demo.domain.store.service;
 
 import com.example.demo.domain.store.entity.Address;
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.exception.StoreErrorStatus;
 import com.example.demo.domain.store.exception.StoreHandler;
@@ -24,21 +24,24 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final StoreAdaptor storeAdaptor;
 
-    public Store createStore(String storeName, BusinessType businessType, String contactNumber,
+    public Store createStore(String storeName, Category businessType, String contactNumber,
                            String sido, String sigun, String fullAddress, 
-                           Double latitude, Double longitude) {
+                           Double latitude, Double longitude,
+                           String majorCategory, String subCategory) {
         storeAdaptor.validateStoreNameNotExists(storeName);
         if (contactNumber != null && !contactNumber.trim().isEmpty()) {
             storeAdaptor.validateContactNumberNotExists(contactNumber);
         }
         Address address = new Address(sido, sigun, fullAddress, latitude, longitude);
         validateAddress(address);
-        Store store = Store.create(storeName, businessType, contactNumber, address);
+        Store store = (majorCategory != null || subCategory != null)
+            ? Store.create(storeName, businessType, contactNumber, address, majorCategory, subCategory)
+            : Store.create(storeName, businessType, contactNumber, address);
         return storeRepository.save(store);
     }
 
-    public Store updateStore(Long storeId, String storeName, BusinessType businessType, 
-                           String contactNumber) {
+    public Store updateStore(Long storeId, String storeName, Category businessType, 
+                           String contactNumber, String majorCategory, String subCategory) {
         Store store = findStoreById(storeId);
         if (storeName != null && !storeName.equals(store.getStoreName())) {
             storeAdaptor.validateStoreNameNotExists(storeName);
@@ -47,7 +50,19 @@ public class StoreService {
             storeAdaptor.validateContactNumberNotExists(contactNumber);
         }
 
+        boolean businessTypeChanged = businessType != null && businessType != store.getCategory();
         Store updatedStore = store.updateStoreInfo(storeName, businessType, contactNumber);
+
+        if (majorCategory != null || subCategory != null || businessTypeChanged) {
+            String major = majorCategory;
+            String sub = subCategory;
+            if (businessTypeChanged && (major == null || sub == null)) {
+                Category.Classification cls = Category.classify(businessType.getDescription());
+                if (major == null) major = cls.majorCategory();
+                if (sub == null) sub = cls.subCategory();
+            }
+            updatedStore.updateCategories(major, sub);
+        }
         return storeRepository.save(updatedStore);
     }
 
@@ -103,7 +118,7 @@ public class StoreService {
 
     private Store createStoreFromExcelData(StoreExcelData data) {
         try {
-            BusinessType businessType = BusinessType.fromString(data.getBusinessType());
+            Category businessType = Category.fromString(data.getBusinessType());
             Address address = new Address(
                 data.getSido(),
                 data.getSigun(), 
@@ -112,11 +127,14 @@ public class StoreService {
                 data.getLongitude()
             );
 
+            Category.Classification cls = Category.classify(data.getBusinessType());
             Store store = Store.create(
                 data.getStoreName(),
                 businessType,
                 data.getContactNumber(),
-                address
+                address,
+                cls.majorCategory(),
+                cls.subCategory()
             );
 
             addMenusFromExcelData(store, data);

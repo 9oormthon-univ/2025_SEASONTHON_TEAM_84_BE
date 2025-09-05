@@ -34,8 +34,15 @@ public class Store extends BaseTimeEntity {
     private String storeName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "business_type", nullable = false)
-    private BusinessType businessType;
+    @Column(name = "category", nullable = false)
+    private Category category;
+
+    // 대분류/소분류 카테고리 (UI/검색용)
+    @Column(name = "major_category", nullable = false, length = 50)
+    private String majorCategory;
+
+    @Column(name = "sub_category", nullable = false, length = 50)
+    private String subCategory;
 
     @Column(name = "contact_number", length = 20)
     private String contactNumber;
@@ -68,12 +75,14 @@ public class Store extends BaseTimeEntity {
         }
     }
 
-    public Store updateStoreInfo(String storeName, BusinessType businessType, String contactNumber) {
+    public Store updateStoreInfo(String storeName, Category businessType, String contactNumber) {
         return Store.builder()
             .id(this.id)
             .storeName(storeName != null ? storeName : this.storeName)
-            .businessType(businessType != null ? businessType : this.businessType)
+            .category(businessType != null ? businessType : this.category)
             .contactNumber(contactNumber != null ? contactNumber : this.contactNumber)
+            .majorCategory(this.majorCategory)
+            .subCategory(this.subCategory)
             .address(this.address)
             .menus(this.menus)
             .isActive(this.isActive)
@@ -125,15 +134,49 @@ public class Store extends BaseTimeEntity {
     }
 
     public static Store create(String storeName,
-                               BusinessType businessType,
+                               Category businessType,
                                String contactNumber,
                                Address address) {
+        Category.Classification classification = Category.classify(
+            businessType != null ? businessType.getDescription() : null
+        );
         return Store.builder()
             .storeName(storeName != null ? storeName.trim() : null)
-            .businessType(businessType)
+            .category(businessType)
             .contactNumber(contactNumber != null ? contactNumber.trim() : null)
             .address(address)
+            .majorCategory(classification.majorCategory())
+            .subCategory(classification.subCategory())
             .isActive(true)
             .build();
+    }
+
+    public static Store create(String storeName,
+                               Category businessType,
+                               String contactNumber,
+                               Address address,
+                               String majorCategory,
+                               String subCategory) {
+        String major = majorCategory != null && !majorCategory.trim().isEmpty()
+            ? majorCategory.trim()
+            : Category.classify(businessType != null ? businessType.getDescription() : null).majorCategory();
+        String sub = subCategory != null && !subCategory.trim().isEmpty()
+            ? subCategory.trim()
+            : Category.classify(businessType != null ? businessType.getDescription() : null).subCategory();
+
+        return Store.builder()
+            .storeName(storeName != null ? storeName.trim() : null)
+            .category(businessType)
+            .contactNumber(contactNumber != null ? contactNumber.trim() : null)
+            .address(address)
+            .majorCategory(major)
+            .subCategory(sub)
+            .isActive(true)
+            .build();
+    }
+
+    public void updateCategories(String majorCategory, String subCategory) {
+        this.majorCategory = majorCategory != null ? majorCategory.trim() : this.majorCategory;
+        this.subCategory = subCategory != null ? subCategory.trim() : this.subCategory;
     }
 }

@@ -1,6 +1,6 @@
 package com.example.demo.domain.store.adaptor;
 
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.exception.StoreErrorStatus;
 import com.example.demo.domain.store.exception.StoreHandler;
@@ -40,7 +40,7 @@ public class StoreAdaptor {
         return storeRepository.findByStoreNameContainingAndIsActiveTrue(storeName, pageable);
     }
 
-    public Page<Store> queryByBusinessType(BusinessType businessType, Pageable pageable) {
+    public Page<Store> queryByBusinessType(Category businessType, Pageable pageable) {
         return storeRepository.findByBusinessTypeAndIsActiveTrue(businessType, pageable);
     }
 
@@ -60,14 +60,14 @@ public class StoreAdaptor {
         return storeRepository.findStoresWithinRadius(latitude, longitude, radiusKm, pageable);
     }
 
-    public Page<Store> queryByBusinessTypeAndRegion(BusinessType businessType, 
+    public Page<Store> queryByBusinessTypeAndRegion(Category businessType, 
                                                    String sido, String sigun, 
                                                    Pageable pageable) {
         return storeRepository.findByBusinessTypeAndRegion(businessType, sido, sigun, pageable);
     }
 
     public Page<Store> queryByStoreNameAndBusinessTypeAndSido(String storeName,
-                                                             BusinessType businessType,
+                                                             Category businessType,
                                                              String sido,
                                                              Pageable pageable) {
         return storeRepository.findByStoreNameAndBusinessTypeAndSido(
