@@ -1,6 +1,8 @@
 spring:
+  profiles:
+    active: local
   datasource:
-    url: jdbc:mysql://localhost:3306/{{ secrets.DATABASE_NAME }}?serverTimezone=UTC
+    url: jdbc:mysql://{{ secrets.DB_HOST }}:{{ secrets.DB_PORT }}/{{ secrets.DATABASE_NAME }}?serverTimezone=UTC
     username: {{ secrets.DATABASE_USERNAME }}
     password: {{ secrets.DATABASE_PASSWORD }}
     driver-class-name: com.mysql.cj.jdbc.Driver
