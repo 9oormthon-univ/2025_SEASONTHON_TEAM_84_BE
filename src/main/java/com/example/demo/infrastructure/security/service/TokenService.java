@@ -5,7 +5,6 @@ import com.example.demo.infrastructure.exception.object.general.GeneralException
 import com.example.demo.infrastructure.exception.payload.code.ErrorStatus;
 import com.example.demo.infrastructure.security.dto.JwtToken;
 import com.example.demo.infrastructure.security.vo.CustomUserDetails;
-import com.example.demo.infrastructure.service.RedisService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
