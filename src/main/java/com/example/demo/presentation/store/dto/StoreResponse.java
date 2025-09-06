@@ -3,6 +3,7 @@ package com.example.demo.presentation.store.dto;
 import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.entity.StoreMenu;
+import com.example.demo.presentation.review.dto.ReviewResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -291,6 +292,9 @@ public class StoreResponse {
         @Schema(description = "사용자로부터의 거리(km)", example = "1.25")
         private Double distanceKm;
 
+        @Schema(description = "리뷰 정보")
+        private ReviewSummary reviewSummary;
+
         @Schema(description = "활성화 여부", example = "true")
         private boolean isActive;
 
@@ -312,6 +316,25 @@ public class StoreResponse {
                             .map(MenuInfo::from)
                             .toList())
                     .distanceKm(Math.round(distanceKm * 100.0) / 100.0) // 소수점 2자리까지 반올림
+                    .isActive(store.isActive())
+                    .createdDate(store.getCreatedDate())
+                    .lastModifiedDate(store.getLastModifiedDate())
+                    .build();
+        }
+
+        public static NearbyStore from(Store store, Double distanceKm, ReviewSummary reviewSummary) {
+            return NearbyStore.builder()
+                    .storeId(store.getId())
+                    .storeName(store.getStoreName())
+                    .category(store.getCategory())
+                    .categoryDescription(store.getCategory().getDescription())
+                    .contactNumber(store.getContactNumber())
+                    .address(AddressInfo.from(store.getAddress()))
+                    .menus(store.getMenus().stream()
+                            .map(MenuInfo::from)
+                            .toList())
+                    .distanceKm(Math.round(distanceKm * 100.0) / 100.0) // 소수점 2자리까지 반올림
+                    .reviewSummary(reviewSummary)
                     .isActive(store.isActive())
                     .createdDate(store.getCreatedDate())
                     .lastModifiedDate(store.getLastModifiedDate())
@@ -356,6 +379,34 @@ public class StoreResponse {
                     .userLongitude(userLongitude)
                     .stores(nearbyStores)
                     .maxDistanceKm(Math.round(maxDistance * 100.0) / 100.0)
+                    .build();
+        }
+    }
+
+    /**
+     * 리뷰 요약 정보 DTO
+     */
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "리뷰 요약 정보")
+    public static class ReviewSummary {
+
+        @Schema(description = "평균 평점", example = "4.2")
+        private Double averageRating;
+
+        @Schema(description = "총 리뷰 수", example = "15")
+        private Long reviewCount;
+
+        @Schema(description = "상위 리뷰 목록")
+        private List<ReviewResponse.ReviewInfo> topReviews;
+
+        public static ReviewSummary from(Double averageRating, Long reviewCount, List<ReviewResponse.ReviewInfo> topReviews) {
+            return ReviewSummary.builder()
+                    .averageRating(averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : 0.0)
+                    .reviewCount(reviewCount != null ? reviewCount : 0L)
+                    .topReviews(topReviews != null ? topReviews : List.of())
                     .build();
         }
     }

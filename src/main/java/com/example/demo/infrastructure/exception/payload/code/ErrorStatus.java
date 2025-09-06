@@ -27,9 +27,13 @@ public enum ErrorStatus implements BaseCode {
     AUTH_ROLE_CANNOT_EXECUTE_URI(BAD_REQUEST, 4056, "해당 인가로는 실행할 수 없는 동작입니다."),
     AUTH_INVALID_AUTHENTICATION(UNAUTHORIZED, 4057, "유효하지 않은 인증 객체입니다."),
     AUTH_ADMIN_PRIVILEGES_REQUIRED(FORBIDDEN, 4003, "관리자의 권한이 필요합니다."),
+    AUTH_INVALID_CREDENTIALS(UNAUTHORIZED, 4058, "아이디 또는 비밀번호가 일치하지 않습니다."),
+    AUTH_SOCIAL_LOGIN_ONLY(BAD_REQUEST, 4059, "소셜 로그인으로 가입된 계정입니다. 소셜 로그인을 이용해주세요."),
 
     //member error(4100 ~ 4149)
     MEMBER_NOT_FOUND(NOT_FOUND, 4100, "찾을 수 없는 유저 정보입니다."),
+    MEMBER_DUPLICATE_USERNAME(BAD_REQUEST, 4101, "이미 사용중인 아이디입니다."),
+    MEMBER_DUPLICATE_NICKNAME(BAD_REQUEST, 4102, "이미 사용중인 닉네임입니다."),
 
     // File Error (4201 ~ 4210)
     FILE_READ_ERROR(INTERNAL_SERVER_ERROR, 4201, "파일을 읽는 중 오류가 발생했습니다."),
