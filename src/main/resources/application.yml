@@ -62,6 +62,7 @@ logging:
   level:
     root: info
     org.springframework.web: debug
+    com.example.demo.infrastructure.auth.handler.CustomOAuth2LoginFailureHandler: debug
 
 #jwt secret
 app:
