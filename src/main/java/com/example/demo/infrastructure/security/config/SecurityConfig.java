@@ -45,18 +45,18 @@ public class SecurityConfig {
         configureCorsAndSecurity(httpSecurity);
         configureAuth(httpSecurity);
         configureOAuth2(httpSecurity);
-        configureExceptionHandling(httpSecurity);
+//        configureExceptionHandling(httpSecurity);
         addFilter(httpSecurity);
 
         return httpSecurity.build();
     }
 
-    private void configureExceptionHandling(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler));
-    }
+//    private void configureExceptionHandling(HttpSecurity httpSecurity) throws Exception {
+//        httpSecurity
+//                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
+//                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//                        .accessDeniedHandler(jwtAccessDeniedHandler));
+//    }
 
 
     private void configureCorsAndSecurity(HttpSecurity httpSecurity) throws Exception {
