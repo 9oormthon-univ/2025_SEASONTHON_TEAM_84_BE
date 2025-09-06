@@ -4,51 +4,52 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
   profiles:
-    active: local
+    active: ${SPRING_PROFILES_ACTIVE:prod}
   datasource:
-    url: jdbc:mysql://{{ secrets.DB_HOST }}:{{ secrets.DB_PORT }}/{{ secrets.DATABASE_NAME }}?serverTimezone=UTC
-    username: {{ secrets.DATABASE_USERNAME }}
-    password: {{ secrets.DATABASE_PASSWORD }}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-  data:
-    redis:
-      port: {{ secrets.REDIS_PORT }}
-      host: {{ secrets.REDIS_HOST }}
-      password:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    defer-datasource-initialization: true
+      ddl-auto: update
+    defer-datasource-initialization: false
     properties:
       hibernate:
-        format_sql: true  # SQL 포맷 정렬 여부
-        show_sql: true
+        format_sql: false
+        show_sql: false
         jdbc:
-          batch_size: 1000  # 배치 삽입 크기
-          order_inserts: true  # 삽입 SQL 정렬
-          order_updates: true  # 업데이트 SQL 정렬
-          batch_versioned_data: true  # 버전 관리 데이터 배치 처리
+          batch_size: 1000
+          order_inserts: true
+          order_updates: true
+          batch_versioned_data: true
 
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: {{ secrets.GOOGLE_CLIENT_ID }}
-            client-secret: {{ secrets.GOOGLE_CLIENT_SECRET }}
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - email
           naver:
-            client-id: {{ secrets.NAVER_CLIENT_ID }}
-            client-secret: {{ secrets.NAVER_CLIENT_SECRET }}
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
             scope: email
             client-name: Naver
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           kakao:
-            client-id: {{ secrets.KAKAO_CLIENT_ID }}
-            client-secret: {{ secrets.KAKAO_CLIENT_SECRET }}
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
             scope: account_email
             client-name: Kakao
             authorization-grant-type: authorization_code
@@ -75,13 +76,11 @@ spring:
 auth:
   success-redirect-uri: "{baseUrl}/login/oauth2/callback"
 
-# 서버 포트 설정 (기본 포트 변경 시)
+# 서버 포트 설정 (Render는 PORT 환경변수 사용)
 server:
-  port: 8080
-#  servlet:
-#    context-path: /api/v1 # controller 접두사
+  port: ${PORT:8080}
 
-# 로깅 레벨 설정 (필요 시)
+# 로깅 레벨 설정
 logging:
   level:
     root: info
@@ -90,18 +89,6 @@ logging:
 #jwt secret
 app:
   jwt:
-    secret: {{ secrets.JWT_SECRET }}
+    secret: ${JWT_SECRET}
   cors:
-    front-path: {{ secrets.FRONT_URL }} #cors front url
-
-#cloud
-cloud:
-  aws:
-    credentials:
-      access-key: {{ secrets.AWS_ACCESS_KEY }} # 환경변수 필요
-      secret-key: {{ secrets.AWS_SECRET_KEY }} # 환경변수 필요
-    region:
-      static: ap-northeast-2
-    s3:
-      bucket: {{ secrets.AWS_S3_BUCKET }} # 환경변수 필요
-
+    front-path: ${FRONT_URL} #cors front url

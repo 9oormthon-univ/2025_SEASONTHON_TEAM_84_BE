@@ -50,7 +50,7 @@ public class StoreExcelService {
             }
         } catch (IOException e) {
             log.error("파일 읽기 중 오류 발생: {}", e.getMessage(), e);
-            throw new StoreHandler(StoreErrorStatus.FILE_PROCESSING_ERROR);
+            throw new StoreHandler(StoreErrorStatus.FILE_PROCESS_ERROR);
         }
     }
 

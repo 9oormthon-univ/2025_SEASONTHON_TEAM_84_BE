@@ -2,6 +2,7 @@ package com.example.demo.domain.store.entity;
 
 import com.example.demo.domain.auditing.entity.BaseTimeEntity;
 import jakarta.persistence.*;
+import com.example.demo.domain.store.util.DistanceUtils;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -115,27 +116,12 @@ public class Store extends BaseTimeEntity {
             return false;
         }
 
-        double distance = calculateDistance(
+        double distance = DistanceUtils.calculateDistanceKm(
             this.address.getLatitude(), this.address.getLongitude(),
             centerLat, centerLon
         );
         
         return distance <= radiusKm;
-    }
-
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371;
-        
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        
-        return R * c;
     }
 
     public static Store create(String storeName,
