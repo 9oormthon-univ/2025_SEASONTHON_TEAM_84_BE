@@ -38,7 +38,6 @@ public enum ErrorStatus implements BaseCode {
     FILE_EXTENSION_NOT_FOUND(NOT_FOUND, 4204, "파일의 형식을 찾을 수 없습니다."),
     FILE_UPLOAD_FAILED(INTERNAL_SERVER_ERROR, 4205, "파일 업로드에 실패했습니다."),
 
-
     ;
 
 
