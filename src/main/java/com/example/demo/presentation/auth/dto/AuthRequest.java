@@ -14,17 +14,17 @@ public class AuthRequest {
     public static class SignUpRequest {
         
         @NotBlank(message = "아이디는 필수입니다.")
-        @Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하여야 합니다.")
+        @Size(min = 1, max = 20, message = "아이디는 1자 이상 20자 이하여야 합니다.")
         @Schema(description = "사용자 아이디", example = "testuser123")
         private String username;
         
         @NotBlank(message = "비밀번호는 필수입니다.")
-        @Size(min = 8, max = 100, message = "비밀번호는 8자 이상이어야 합니다.")
+        @Size(min = 1, max = 100, message = "비밀번호는 1자 이상이어야 합니다.")
         @Schema(description = "비밀번호", example = "password123!")
         private String password;
         
         @NotBlank(message = "닉네임은 필수입니다.")
-        @Size(min = 2, max = 20, message = "닉네임은 2자 이상 20자 이하여야 합니다.")
+        @Size(min = 1, max = 20, message = "닉네임은 1자 이상 20자 이하여야 합니다.")
         @Schema(description = "사용자 닉네임", example = "테스트유저")
         private String nickname;
         
