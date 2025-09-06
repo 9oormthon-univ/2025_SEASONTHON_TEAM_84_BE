@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

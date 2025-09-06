@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FavoriteToggleResponseDto {
+
     private Long storeId;
     private boolean isFavorite;
     private String message;

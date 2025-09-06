@@ -18,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class FavoriteService {
+
     private final FavoriteRepository favoriteRepository;
     private final StoreRepository storeRepository;
     private final MemberRepository memberRepository;

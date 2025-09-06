@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FavoriteResponseDto {
+
     private Long favoriteId;
     private Long storeId;
     private String storeName;

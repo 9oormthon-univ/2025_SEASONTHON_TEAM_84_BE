@@ -19,7 +19,7 @@ public class FavoriteController {
 
     private final FavoriteService favoriteService;
 
-    @Operation(summary = "즐겨찾기 추가/삭제 토글")
+    @Operation(summary = "즐겨찾기 추가/삭제 토글", description = "즐겨찾기를 추가하거나 삭제합니다")
     @PostMapping("/toggle/{storeId}")
     public ResponseEntity<FavoriteToggleResponseDto> toggleFavorite(
             @PathVariable Long storeId,
@@ -34,7 +34,7 @@ public class FavoriteController {
                 .build());
     }
 
-    @Operation(summary = "내 즐겨찾기 목록 조회")
+    @Operation(summary = "내 즐겨찾기 목록 조회", description = "사용자의 즐겨찾기 목록을 조회합니다")
     @GetMapping("/my")
     public ResponseEntity<List<FavoriteResponseDto>> getMyFavorites(
             @RequestParam Long memberId) {
@@ -43,7 +43,7 @@ public class FavoriteController {
         return ResponseEntity.ok(favorites);
     }
 
-    @Operation(summary = "즐겨찾기 여부 확인")
+    @Operation(summary = "즐겨찾기 여부 확인", description = "즐겨찾기 여부를 확인합니다")
     @GetMapping("/check/{storeId}")
     public ResponseEntity<Boolean> checkFavorite(
             @PathVariable Long storeId,
@@ -53,7 +53,7 @@ public class FavoriteController {
         return ResponseEntity.ok(isFavorite);
     }
 
-    @Operation(summary = "업소의 즐겨찾기 수 조회")
+    @Operation(summary = "업소의 즐겨찾기 수 조회", description = "업소의 즐겨찾기 수를 조회합니다.")
     @GetMapping("/count/{storeId}")
     public ResponseEntity<Long> getFavoriteCount(@PathVariable Long storeId) {
         long count = favoriteService.getFavoriteCount(storeId);
