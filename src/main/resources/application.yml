@@ -16,15 +16,10 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-  data:
-    redis:
-      port: ${REDIS_PORT:6379}
-      host: ${REDIS_HOST:localhost}
-      password: ${REDIS_PASSWORD:}
 
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:update}
+      ddl-auto: update
     defer-datasource-initialization: false
     properties:
       hibernate:
@@ -88,11 +83,8 @@ server:
 # 로깅 레벨 설정
 logging:
   level:
-    root: ${LOG_LEVEL:info}
-    org.springframework.web: ${WEB_LOG_LEVEL:warn}
-    com.example.demo: ${APP_LOG_LEVEL:info}
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    root: info
+    org.springframework.web: debug
 
 #jwt secret
 app:
@@ -100,15 +92,3 @@ app:
     secret: ${JWT_SECRET}
   cors:
     front-path: ${FRONT_URL} #cors front url
-
-#cloud
-cloud:
-  aws:
-    credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
-    region:
-      static: ${AWS_REGION:ap-northeast-2}
-    s3:
-      bucket: ${AWS_S3_BUCKET}
-
