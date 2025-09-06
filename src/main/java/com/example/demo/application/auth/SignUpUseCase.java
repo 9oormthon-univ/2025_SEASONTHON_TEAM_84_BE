@@ -46,9 +46,9 @@ public class SignUpUseCase {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .nickname(request.getNickname())
-                .email(request.getEmail())
+//                .email(request.getEmail())
                 .role(Role.USER)
-                .point(0)
+//                .point(0)
                 .build();
     }
 }

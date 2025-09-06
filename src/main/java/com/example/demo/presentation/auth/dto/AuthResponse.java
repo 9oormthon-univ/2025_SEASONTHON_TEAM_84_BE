@@ -87,26 +87,4 @@ public class AuthResponse {
         }
     }
 
-    @Getter
-    @Builder
-    @Schema(description = "토큰 갱신 응답")
-    public static class RefreshTokenResponse {
-        
-        @Schema(description = "JWT 토큰 타입", example = "Bearer")
-        private String grantType;
-        
-        @Schema(description = "새로운 액세스 토큰")
-        private String accessToken;
-        
-        @Schema(description = "새로운 리프레시 토큰")
-        private String refreshToken;
-
-        public static RefreshTokenResponse from(JwtToken jwtToken) {
-            return RefreshTokenResponse.builder()
-                    .grantType(jwtToken.getGrantType())
-                    .accessToken(jwtToken.getAccessToken())
-                    .refreshToken(jwtToken.getRefreshToken())
-                    .build();
-        }
-    }
 }

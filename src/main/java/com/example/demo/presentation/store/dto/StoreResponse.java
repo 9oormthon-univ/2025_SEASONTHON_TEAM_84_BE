@@ -384,6 +384,76 @@ public class StoreResponse {
     }
 
     /**
+     * 업소 상세 정보 + 리뷰 응답 DTO
+     */
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "업소 상세 정보 + 리뷰 응답")
+    public static class StoreDetailWithReviews {
+
+        @Schema(description = "업소 ID", example = "1")
+        private Long storeId;
+
+        @Schema(description = "업소명", example = "착한식당")
+        private String storeName;
+
+        @Schema(description = "업종", example = "RESTAURANT")
+        private Category category;
+
+        @Schema(description = "업종 설명", example = "음식점")
+        private String categoryDescription;
+
+        @Schema(description = "대분류", example = "한식")
+        private String majorCategory;
+
+        @Schema(description = "소분류", example = "육류")
+        private String subCategory;
+
+        @Schema(description = "연락처", example = "02-1234-5678")
+        private String contactNumber;
+
+        @Schema(description = "주소 정보")
+        private AddressInfo address;
+
+        @Schema(description = "메뉴 목록")
+        private List<MenuInfo> menus;
+
+        @Schema(description = "리뷰 정보")
+        private ReviewSummary reviewSummary;
+
+        @Schema(description = "활성화 여부", example = "true")
+        private boolean isActive;
+
+        @Schema(description = "생성일시", example = "2024-01-01T00:00:00")
+        private LocalDateTime createdDate;
+
+        @Schema(description = "수정일시", example = "2024-01-01T00:00:00")
+        private LocalDateTime lastModifiedDate;
+
+        public static StoreDetailWithReviews from(Store store, ReviewSummary reviewSummary) {
+            return StoreDetailWithReviews.builder()
+                    .storeId(store.getId())
+                    .storeName(store.getStoreName())
+                    .category(store.getCategory())
+                    .categoryDescription(store.getCategory().getDescription())
+                    .contactNumber(store.getContactNumber())
+                    .address(AddressInfo.from(store.getAddress()))
+                    .majorCategory(store.getMajorCategory())
+                    .subCategory(store.getSubCategory())
+                    .menus(store.getMenus().stream()
+                            .map(MenuInfo::from)
+                            .toList())
+                    .reviewSummary(reviewSummary)
+                    .isActive(store.isActive())
+                    .createdDate(store.getCreatedDate())
+                    .lastModifiedDate(store.getLastModifiedDate())
+                    .build();
+        }
+    }
+
+    /**
      * 리뷰 요약 정보 DTO
      */
     @Getter

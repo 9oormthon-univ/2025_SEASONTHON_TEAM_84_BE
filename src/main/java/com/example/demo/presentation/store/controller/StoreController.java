@@ -2,8 +2,6 @@ package com.example.demo.presentation.store.controller;
 
 import com.example.demo.application.store.GetNearbyStoresUseCase;
 import com.example.demo.application.store.GetStoreDetailUseCase;
-import com.example.demo.application.store.StoreUseCase;
-import com.example.demo.domain.store.entity.Store;
 import com.example.demo.infrastructure.exception.payload.dto.ApiResponseDto;
 import com.example.demo.presentation.store.dto.StoreRequest;
 import com.example.demo.presentation.store.dto.StoreResponse;
@@ -16,14 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Store", description = "착한가격업소 관리 API")
 @RestController
@@ -31,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StoreController {
 
-    private final StoreUseCase storeUseCase;
     private final GetStoreDetailUseCase getStoreDetailUseCase;
     private final GetNearbyStoresUseCase getNearbyStoresUseCase;
 
@@ -41,9 +32,9 @@ public class StoreController {
         @ApiResponse(responseCode = "404", description = "업소를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
     @GetMapping("/{storeId}")
-    public ResponseEntity<ApiResponseDto<StoreResponse.StoreDetail>> getStore(
+    public ResponseEntity<ApiResponseDto<StoreResponse.StoreDetailWithReviews>> getStore(
             @Parameter(description = "업소 ID", required = true) @PathVariable Long storeId) {
-        StoreResponse.StoreDetail response = getStoreDetailUseCase.execute(storeId);
+        StoreResponse.StoreDetailWithReviews response = getStoreDetailUseCase.execute(storeId);
         return ResponseEntity.ok(ApiResponseDto.onSuccess(response));
     }
 
