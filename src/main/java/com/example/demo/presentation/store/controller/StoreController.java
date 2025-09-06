@@ -52,7 +52,7 @@ public class StoreController {
         @ApiResponse(responseCode = "200", description = "검색 성공"),
         @ApiResponse(responseCode = "400", description = "잘못된 좌표 또는 반경", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
-    @GetMapping("/nearby")
+    @PostMapping("/nearby")
     public ApiResponseDto<StoreResponse.NearbyStoreList> getStoresWithinRadius(
             @Parameter(description = "반경 검색 조건") @ModelAttribute @Valid StoreRequest.GetNearbyStores request) {
 

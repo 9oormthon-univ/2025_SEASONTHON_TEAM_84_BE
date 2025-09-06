@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
-    @Query("select s from Store s left join fetch s.menu where s.id = :id")
+    @Query("select s from Store s left join fetch s.menus where s.id = :id")
     Optional<Store> findByIdFetchMenu(@Param("id") Long id);
 
     /**
