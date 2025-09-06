@@ -51,11 +51,8 @@ spring:
             user-name-attribute: id
 
 auth:
-  success-redirect-uri: "{baseUrl}/login/oauth2/callback"
+  success-redirect-uri: "https://qualified-swordtail-goormhack84-4dc9e8b7.koyeb.app/login/oauth2/callback"
 
-# 서버 포트 설정 (Render는 PORT 환경변수 사용)
-server:
-  port: ${PORT:8080}
 
 # 로깅 레벨 설정
 logging:
