@@ -22,10 +22,10 @@ COPY src src
 RUN ./gradlew bootJar --no-daemon
 
 # Stage 2: 실행 단계
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-jammy
 
-# 한국 시간대 설정
-RUN apt-get update && apt-get install -y tzdata && \
+# 필요한 패키지 설치 및 한국 시간대 설정
+RUN apt-get update && apt-get install -y tzdata curl && \
     ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
     echo "Asia/Seoul" > /etc/timezone && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
