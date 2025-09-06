@@ -41,6 +41,8 @@ public class Member extends BaseTimeEntity {
     // 일반 로그인용 비밀번호 (소셜 로그인시 null)
     private String password;
 
+    private int point;
+
     //business
     private boolean isNotAdmin() {
         return this.role != Role.ADMIN;
