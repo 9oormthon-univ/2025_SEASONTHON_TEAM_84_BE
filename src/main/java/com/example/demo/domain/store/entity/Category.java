@@ -87,6 +87,7 @@ public enum Category {
         addType("한식(육류)", RESTAURANT);
         addType("한식(면류)", RESTAURANT);
         addType("한식-면류", RESTAURANT);
+        addType("양식", RESTAURANT);
 
         addType("커피전문점", CAFE);
 
@@ -138,6 +139,7 @@ public enum Category {
         addDetail("중식", "중식", "일반");
         addDetail("일식", "일식", "일반");
         addDetail("베트남음식", "아시아", "베트남");
+        addDetail("양식", "양식", "일반");
 
         addDetail("커피전문점", "카페", "커피전문점");
 

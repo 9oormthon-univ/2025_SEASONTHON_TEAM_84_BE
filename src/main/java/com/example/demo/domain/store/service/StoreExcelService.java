@@ -242,10 +242,17 @@ public class StoreExcelService {
                 return null;
             }
             
-            Category businessType = Category.fromString(businessTypeStr);
+            Category.Classification classification = Category.classify(businessTypeStr);
             Address address = new Address(sido, sigun, fullAddress, latitude, longitude);
             
-            return Store.create(storeName, businessType, contactNumber, address);
+            return Store.builder()
+                .storeName(storeName)
+                .category(classification.type())
+                .majorCategory(classification.majorCategory())
+                .subCategory(classification.subCategory())
+                .contactNumber(contactNumber)
+                .address(address)
+                .build();
             
         } catch (Exception e) {
             log.warn("Store 변환 중 오류: {}", e.getMessage());
@@ -313,11 +320,17 @@ public class StoreExcelService {
                 return null;
             }
             
-            Category businessType = Category.fromString(businessTypeStr);
+            Category.Classification classification = Category.classify(businessTypeStr);
             Address address = new Address(sido, sigun, fullAddress, latitude, longitude);
             
-            return Store.create(storeName, businessType, 
-                contactNumber, address);
+            return Store.builder()
+                .storeName(storeName)
+                .category(classification.type())
+                .majorCategory(classification.majorCategory())
+                .subCategory(classification.subCategory())
+                .contactNumber(contactNumber)
+                .address(address)
+                .build();
             
         } catch (Exception e) {
             log.warn("CSV Store 변환 중 오류: {}", e.getMessage());
