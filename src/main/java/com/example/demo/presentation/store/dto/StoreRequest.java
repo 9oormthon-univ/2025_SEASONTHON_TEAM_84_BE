@@ -1,6 +1,6 @@
 package com.example.demo.presentation.store.dto;
 
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.vo.StoreSearchCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -33,7 +33,15 @@ public class StoreRequest {
         
         @NotNull(message = "업종은 필수입니다.")
         @Schema(description = "업종", example = "RESTAURANT", required = true)
-        private BusinessType businessType;
+        private Category businessType;
+
+        @Size(max = 50, message = "대분류는 50자 이하여야 합니다.")
+        @Schema(description = "대분류", example = "한식")
+        private String majorCategory;
+
+        @Size(max = 50, message = "소분류는 50자 이하여야 합니다.")
+        @Schema(description = "소분류", example = "육류")
+        private String subCategory;
         
         @Pattern(regexp = "^[0-9\\-\\s]+$", message = "연락처 형식이 올바르지 않습니다.")
         @Schema(description = "연락처", example = "02-1234-5678")
@@ -80,7 +88,15 @@ public class StoreRequest {
         private String storeName;
         
         @Schema(description = "업종", example = "RESTAURANT")
-        private BusinessType businessType;
+        private Category businessType;
+
+        @Size(max = 50, message = "대분류는 50자 이하여야 합니다.")
+        @Schema(description = "대분류", example = "한식")
+        private String majorCategory;
+
+        @Size(max = 50, message = "소분류는 50자 이하여야 합니다.")
+        @Schema(description = "소분류", example = "육류")
+        private String subCategory;
         
         @Pattern(regexp = "^[0-9\\-\\s]+$", message = "연락처 형식이 올바르지 않습니다.")
         @Schema(description = "연락처", example = "02-1234-5678")
@@ -147,7 +163,7 @@ public class StoreRequest {
         private String storeName;
         
         @Schema(description = "업종", example = "RESTAURANT")
-        private BusinessType businessType;
+        private Category businessType;
         
         @Size(max = 50, message = "시도는 50자 이하여야 합니다.")
         @Schema(description = "시도", example = "서울특별시")

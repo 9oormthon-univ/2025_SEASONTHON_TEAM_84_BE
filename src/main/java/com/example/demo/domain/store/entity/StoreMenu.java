@@ -36,8 +36,14 @@ public class StoreMenu extends BaseTimeEntity {
     @Column(name = "menu_name", nullable = false, length = 100)
     private String menuName;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "price", nullable = false, precision = 15, scale = 2)
     private BigDecimal price;
+
+    @Column(name = "min_price", precision = 15, scale = 2)
+    private BigDecimal minPrice;
+
+    @Column(name = "max_price", precision = 15, scale = 2)
+    private BigDecimal maxPrice;
 
     @Column(name = "menu_order")
     private Integer menuOrder;
@@ -49,6 +55,8 @@ public class StoreMenu extends BaseTimeEntity {
                 .store(this.store)
                 .menuName(this.menuName)
                 .price(newPrice)
+                .minPrice(null)
+                .maxPrice(null)
                 .menuOrder(this.menuOrder)
                 .build();
         }
@@ -62,6 +70,8 @@ public class StoreMenu extends BaseTimeEntity {
                 .store(this.store)
                 .menuName(newMenuName.trim())
                 .price(this.price)
+                .minPrice(this.minPrice)
+                .maxPrice(this.maxPrice)
                 .menuOrder(this.menuOrder)
                 .build();
         }
@@ -69,6 +79,11 @@ public class StoreMenu extends BaseTimeEntity {
     }
 
     public boolean hasValidPrice() {
-        return price != null && price.compareTo(BigDecimal.ZERO) > 0;
+        boolean hasFixed = price != null && price.compareTo(BigDecimal.ZERO) > 0;
+        boolean hasRange = minPrice != null && maxPrice != null
+            && minPrice.compareTo(BigDecimal.ZERO) > 0
+            && maxPrice.compareTo(BigDecimal.ZERO) > 0
+            && maxPrice.compareTo(minPrice) >= 0;
+        return hasFixed || hasRange;
     }
 }

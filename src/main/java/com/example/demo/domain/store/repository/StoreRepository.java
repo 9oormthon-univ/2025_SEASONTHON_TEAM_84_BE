@@ -1,6 +1,6 @@
 package com.example.demo.domain.store.repository;
 
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +16,9 @@ import java.util.Optional;
  */
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
+    @Query("select s from Store s left join fetch s.menu where s.id = :id")
+    Optional<Store> findByIdFetchMenu(@Param("id") Long id);
+
     /**
      * 업소명으로 검색
      */
@@ -29,7 +32,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /**
      * 업종별 검색 (활성화된 업소만)
      */
-    Page<Store> findByBusinessTypeAndIsActiveTrue(BusinessType businessType, Pageable pageable);
+    Page<Store> findByCategoryAndIsActiveTrue(Category category, Pageable pageable);
 
     /**
      * 지역별 검색 (시도, 시군)
@@ -79,11 +82,11 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /**
      * 복합 검색: 업종 + 지역
      */
-    @Query("SELECT s FROM Store s WHERE s.businessType = :businessType " +
+    @Query("SELECT s FROM Store s WHERE s.category = :category " +
            "AND s.address.sido LIKE %:sido% AND s.address.sigun LIKE %:sigun% " +
            "AND s.isActive = true")
-    Page<Store> findByBusinessTypeAndRegion(
-        @Param("businessType") BusinessType businessType,
+    Page<Store> findByCategoryTypeAndRegion(
+        @Param("category") Category category,
         @Param("sido") String sido,
         @Param("sigun") String sigun,
         Pageable pageable
@@ -93,12 +96,12 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
      * 복합 검색: 업소명 + 업종 + 지역
      */
     @Query("SELECT s FROM Store s WHERE s.storeName LIKE %:storeName% " +
-           "AND s.businessType = :businessType " +
+           "AND s.category = :category " +
            "AND s.address.sido LIKE %:sido% " +
            "AND s.isActive = true")
-    Page<Store> findByStoreNameAndBusinessTypeAndSido(
+    Page<Store> findByStoreNameAndCategoryAndSido(
         @Param("storeName") String storeName,
-        @Param("businessType") BusinessType businessType,
+        @Param("category") Category category,
         @Param("sido") String sido,
         Pageable pageable
     );
@@ -130,8 +133,8 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /**
      * 업종별 업소 수 조회
      */
-    @Query("SELECT s.businessType, COUNT(s) FROM Store s WHERE s.isActive = true GROUP BY s.businessType")
-    List<Object[]> countByBusinessType();
+    @Query("SELECT s.category, COUNT(s) FROM Store s WHERE s.isActive = true GROUP BY s.category")
+    List<Object[]> countByCategory();
 
     /**
      * 지역별 업소 수 조회

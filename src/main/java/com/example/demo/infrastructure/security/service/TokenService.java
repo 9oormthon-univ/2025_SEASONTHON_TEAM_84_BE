@@ -5,7 +5,6 @@ import com.example.demo.infrastructure.exception.object.general.GeneralException
 import com.example.demo.infrastructure.exception.payload.code.ErrorStatus;
 import com.example.demo.infrastructure.security.dto.JwtToken;
 import com.example.demo.infrastructure.security.vo.CustomUserDetails;
-import com.example.demo.infrastructure.service.RedisService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -33,31 +32,26 @@ public class TokenService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserDetailsService userDetailsService;
     private final MemberAdaptor memberAdaptor;
-    private final RedisService redisService;
 
     private final static int ACCESS_TOKEN_EXPIRATION_TIME = 1800000;
     private final static int REFRESH_TOKEN_EXPIRATION_TIME = 604800000;
 
     public TokenService(@Value("${app.jwt.secret}") String key,
                         AuthenticationManagerBuilder authenticationManagerBuilder,
-                        UserDetailsService userDetailsService, MemberAdaptor memberAdaptor,
-                        RedisService redisService) {
+                        UserDetailsService userDetailsService, MemberAdaptor memberAdaptor
+                        ) {
         byte[] keyBytes = Decoders.BASE64.decode(key);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDetailsService = userDetailsService;
         this.memberAdaptor = memberAdaptor;
-        this.redisService = redisService;
     }
 
     public JwtToken issueTokens(String refreshToken) {
         // Refresh Token 유효성 검사
-        if (!validateToken(refreshToken) || !existsRefreshToken(refreshToken)) {
+        if (!validateToken(refreshToken)) {
             throw new GeneralException(ErrorStatus.AUTH_INVALID_REFRESH_TOKEN);
         }
-
-        // 이전 리프레시 토큰 삭제
-        redisService.deleteToken(refreshToken);
 
         // 새로운 Authentication 객체 생성
         Claims claims = parseClaims(refreshToken);
@@ -95,23 +89,11 @@ public class TokenService {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // 새 리프레시 토큰을 Redis에 저장
-        redisService.setToken(refreshToken, authentication.getName());
-
         return JwtToken.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
-    }
-
-    public boolean logout(String refreshToken) {
-        redisService.deleteToken(refreshToken);
-        return true;
-    }
-
-    public boolean existsRefreshToken(String refreshToken) {
-        return redisService.getToken(refreshToken) != null;
     }
 
     public Authentication getAuthentication(String accessToken) {

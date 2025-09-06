@@ -1,6 +1,6 @@
 package com.example.demo.domain.store.adaptor;
 
-import com.example.demo.domain.store.entity.BusinessType;
+import com.example.demo.domain.store.entity.Category;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.exception.StoreErrorStatus;
 import com.example.demo.domain.store.exception.StoreHandler;
@@ -23,25 +23,31 @@ public class StoreAdaptor {
 
     public Store queryById(Long storeId) {
         return storeRepository.findById(storeId)
-            .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
+                .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
+    }
+
+    public Store queryByIdFetchMenu(Long storeId) {
+        return storeRepository.findByIdFetchMenu(storeId).orElseThrow(
+                () -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND)
+        );
     }
 
     public Store queryByStoreName(String storeName) {
         return storeRepository.findByStoreName(storeName)
-            .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
+                .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
     }
 
     public Store queryByContactNumber(String contactNumber) {
         return storeRepository.findByContactNumber(contactNumber)
-            .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
+                .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
     }
 
     public Page<Store> queryByStoreNameContaining(String storeName, Pageable pageable) {
         return storeRepository.findByStoreNameContainingAndIsActiveTrue(storeName, pageable);
     }
 
-    public Page<Store> queryByBusinessType(BusinessType businessType, Pageable pageable) {
-        return storeRepository.findByBusinessTypeAndIsActiveTrue(businessType, pageable);
+    public Page<Store> queryByBusinessType(Category businessType, Pageable pageable) {
+        return storeRepository.findByCategoryAndIsActiveTrue(businessType, pageable);
     }
 
     public Page<Store> queryByRegion(String sido, String sigun, Pageable pageable) {
@@ -52,26 +58,26 @@ public class StoreAdaptor {
         return storeRepository.findBySido(sido, pageable);
     }
 
-    public Page<Store> queryStoresWithinRadius(Double latitude, Double longitude, 
-                                             Double radiusKm, Pageable pageable) {
+    public Page<Store> queryStoresWithinRadius(Double latitude, Double longitude,
+                                               Double radiusKm, Pageable pageable) {
         StoreValidator.validateCoordinates(latitude, longitude);
         StoreValidator.validateRadius(radiusKm);
-        
+
         return storeRepository.findStoresWithinRadius(latitude, longitude, radiusKm, pageable);
     }
 
-    public Page<Store> queryByBusinessTypeAndRegion(BusinessType businessType, 
-                                                   String sido, String sigun, 
-                                                   Pageable pageable) {
-        return storeRepository.findByBusinessTypeAndRegion(businessType, sido, sigun, pageable);
+    public Page<Store> queryByBusinessTypeAndRegion(Category businessType,
+                                                    String sido, String sigun,
+                                                    Pageable pageable) {
+        return storeRepository.findByCategoryTypeAndRegion(businessType, sido, sigun, pageable);
     }
 
     public Page<Store> queryByStoreNameAndBusinessTypeAndSido(String storeName,
-                                                             BusinessType businessType,
-                                                             String sido,
-                                                             Pageable pageable) {
-        return storeRepository.findByStoreNameAndBusinessTypeAndSido(
-            storeName, businessType, sido, pageable);
+                                                              Category businessType,
+                                                              String sido,
+                                                              Pageable pageable) {
+        return storeRepository.findByStoreNameAndCategoryAndSido(
+                storeName, businessType, sido, pageable);
     }
 
     public Page<Store> queryActiveStores(Pageable pageable) {
@@ -87,7 +93,7 @@ public class StoreAdaptor {
     }
 
     public List<Object[]> queryStoreCountByBusinessType() {
-        return storeRepository.countByBusinessType();
+        return storeRepository.countByCategory();
     }
 
     public List<Object[]> queryStoreCountByRegion() {
