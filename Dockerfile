@@ -6,9 +6,6 @@ FROM gradle:8.5-jdk17 AS builder
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 빌드 시 캐시 무효화를 위한 타임스탬프 추가
-ADD https://worldtimeapi.org/api/timezone/Asia/Seoul /tmp/bustcache
-
 # Gradle 래퍼와 빌드 스크립트 복사
 COPY gradlew .
 COPY gradle gradle
@@ -21,11 +18,14 @@ RUN chmod +x ./gradlew
 # 의존성 다운로드 (캐시 최적화)
 RUN ./gradlew dependencies --no-daemon
 
-# 소스 코드 복사
+# 소스 코드 복사 (변경 시 이후 레이어 자동 무효화)
 COPY src src
 
-# 빌드 캐시 초기화 및 애플리케이션 빌드
-RUN ./gradlew clean bootJar --no-daemon --refresh-dependencies
+# Git 정보 복사 (커밋 해시 기반 캐시 무효화)
+COPY .git .git
+
+# 애플리케이션 빌드 (clean으로 이전 빌드 제거)
+RUN ./gradlew clean bootJar --no-daemon --no-build-cache
 
 # Stage 2: 실행 단계
 FROM eclipse-temurin:17-jre-jammy

@@ -15,8 +15,7 @@ gradle-wrapper.jar
 .DS_Store
 Thumbs.db
 
-# Git
-.git/
+# Git (커밋 해시 기반 캐시 무효화를 위해 .git은 포함)
 .gitignore
 
 # Documentation
