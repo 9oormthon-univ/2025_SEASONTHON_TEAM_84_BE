@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 /**
  * 사용자 현재 위치 기반 착한가격업소 조회 UseCase
@@ -43,17 +41,16 @@ public class GetNearbyStoresUseCase {
         List<Store> nearbyStores;
 
         if (radiusKm != null) {
-            // 반경 내 조회를 Adaptor로 위임 (DB 정렬: 거리순)
-            Page<Store> page = storeAdaptor.queryStoresWithinRadius(
+            // 반경 내 조회를 Adaptor로 위임 (DB 정렬: 거리순) + 메뉴 fetch join 보장
+            nearbyStores = storeAdaptor.queryStoresWithinRadiusWithMenus(
                 userLatitude,
                 userLongitude,
                 radiusKm,
-                PageRequest.of(0, limit)
+                limit
             );
-            nearbyStores = page.getContent();
         } else {
-            // 반경 제한이 없으면 메모리에서 거리 정렬 후 상위 N개 선택
-            List<Store> allStoresWithCoordinates = storeAdaptor.queryStoresWithCoordinates();
+            // 반경 제한이 없으면 좌표 보유 업소를 메뉴까지 fetch join 후 메모리에서 거리 정렬
+            List<Store> allStoresWithCoordinates = storeAdaptor.queryStoresWithCoordinatesFetchMenus();
             nearbyStores = allStoresWithCoordinates.stream()
                 .sorted(createDistanceComparator(userLatitude, userLongitude))
                 .limit(limit)

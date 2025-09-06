@@ -142,4 +142,18 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     @Query("SELECT s.address.sido, s.address.sigun, COUNT(s) FROM Store s " +
            "WHERE s.isActive = true GROUP BY s.address.sido, s.address.sigun")
     List<Object[]> countByRegion();
+
+
+    /**
+     * 주어진 ID 목록의 Store와 메뉴를 fetch join으로 함께 조회
+     */
+    @Query("SELECT DISTINCT s FROM Store s LEFT JOIN FETCH s.menus WHERE s.id IN :ids")
+    List<Store> findAllByIdInFetchMenus(@Param("ids") List<Long> ids);
+
+    /**
+     * 좌표가 있는 활성화된 업소를 메뉴와 함께 fetch join으로 조회
+     */
+    @Query("SELECT DISTINCT s FROM Store s LEFT JOIN FETCH s.menus WHERE s.address.latitude IS NOT NULL " +
+           "AND s.address.longitude IS NOT NULL AND s.isActive = true")
+    List<Store> findStoresWithCoordinatesFetchMenus();
 }
