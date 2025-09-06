@@ -23,12 +23,7 @@ public enum StoreErrorStatus implements BaseCode {
     INVALID_RADIUS(BAD_REQUEST, 4306, "유효하지 않은 반경값입니다."),
     RADIUS_TOO_LARGE(BAD_REQUEST, 4307, "검색 반경이 너무 큽니다. (최대 100km)"),
     INVALID_BUSINESS_TYPE(BAD_REQUEST, 4308, "유효하지 않은 업종입니다."),
-    INVALID_MENU_PRICE(BAD_REQUEST, 4309, "유효하지 않은 메뉴 가격입니다."),
-    
-    // File Processing Error (4320 ~ 4329)
-    INVALID_FILE_FORMAT(BAD_REQUEST, 4320, "지원하지 않는 파일 형식입니다. (Excel 또는 CSV만 지원)"),
-    FILE_PROCESSING_ERROR(BAD_REQUEST, 4321, "파일 처리 중 오류가 발생했습니다."),
-    DATABASE_ERROR(BAD_REQUEST, 4322, "데이터베이스 저장 중 오류가 발생했습니다.");
+    INVALID_MENU_PRICE(BAD_REQUEST, 4309, "유효하지 않은 메뉴 가격입니다."),;
 
     private final HttpStatus httpStatus;
     private final Integer code;
