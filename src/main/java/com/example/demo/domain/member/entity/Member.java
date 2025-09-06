@@ -38,8 +38,8 @@ public class Member extends BaseTimeEntity {
 
     private String email;
 
-    private int point;
-
+    // 일반 로그인용 비밀번호 (소셜 로그인시 null)
+    private String password;
 
     //business
     private boolean isNotAdmin() {

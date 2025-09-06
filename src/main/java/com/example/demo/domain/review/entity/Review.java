@@ -1,61 +1,66 @@
 package com.example.demo.domain.review.entity;
 
 import com.example.demo.domain.auditing.entity.BaseTimeEntity;
+import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.store.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-
-@Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@Entity
 @SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "review",
         indexes = {
-                @Index(name = "idx_review_store_id", columnList = "store_id"),
-                @Index(name = "idx_review_writer_id", columnList = "writer_id"),
+                @Index(name = "idx_review_store", columnList = "store_id"),
+                @Index(name = "idx_review_member", columnList = "member_id"),
+                @Index(name = "idx_review_rating", columnList = "rating"),
+                @Index(name = "idx_review_created_date", columnList = "createdDate")
         }
 )
 public class Review extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id")
     private Long id;
-
-    @Column(nullable = false, length = 500)
-    private String content;
-
-    @Column(nullable = false)
-    private Long writerId;
-
-    @Column(nullable = false)
-    private int rating; // 1~5
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @Column(nullable = false)
+    private Integer rating; // 1~5점
+
+    @Column(length = 1000)
+    private String content;
+
+    @Column(name = "is_active")
     @Builder.Default
-    private boolean isDeleted = false;
+    private boolean isActive = true;
 
-    public void setRating(int rating) {
-        if (rating < 1 || rating > 5) throw new IllegalArgumentException("별점은 1~5 사이여야 합니다.");
-        this.rating = rating;
+    // 비즈니스 로직
+    public void updateReview(Integer rating, String content) {
+        if (rating != null && rating >= 1 && rating <= 5) {
+            this.rating = rating;
+        }
+        if (content != null) {
+            this.content = content;
+        }
     }
 
-    // 수정
-    public void updateReview(String content, int rating) {
-        this.content = content;
-        setRating(rating);
+    public void deactivate() {
+        this.isActive = false;
     }
 
-    //삭제
-    public void softDelete() {
-        this.isDeleted = true;
+    public boolean isOwner(Long memberId) {
+        return this.member.getId().equals(memberId);
     }
-
 }
-

@@ -1,5 +1,7 @@
 package com.example.demo.application.store;
 
+import com.example.demo.domain.review.adaptor.ReviewAdaptor;
+import com.example.demo.domain.review.entity.Review;
 import com.example.demo.domain.store.adaptor.StoreAdaptor;
 import com.example.demo.domain.store.entity.Store;
 import com.example.demo.domain.store.exception.StoreErrorStatus;
@@ -7,6 +9,7 @@ import com.example.demo.domain.store.exception.StoreHandler;
 import com.example.demo.domain.store.validator.StoreValidator;
 import com.example.demo.domain.store.util.DistanceUtils;
 import com.example.demo.infrastructure.annotation.usecase.UseCase;
+import com.example.demo.presentation.review.dto.ReviewResponse;
 import com.example.demo.presentation.store.dto.StoreResponse;
 import com.example.demo.presentation.store.dto.StoreRequest;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 /**
  * 사용자 현재 위치 기반 착한가격업소 조회 UseCase
@@ -24,6 +31,7 @@ import java.util.List;
 public class GetNearbyStoresUseCase {
 
     private final StoreAdaptor storeAdaptor;
+    private final ReviewAdaptor reviewAdaptor;
 
     /**
      * 사용자 현재 위치 기반 가까운 착한가격업소 조회
@@ -57,11 +65,38 @@ public class GetNearbyStoresUseCase {
                 .toList();
         }
         
-        // Store 엔터티를 NearbyStore DTO로 변환 (거리 정보 포함)
+        // 스토어들의 리뷰 정보를 한 번에 조회
+        List<Long> storeIds = nearbyStores.stream()
+                .map(Store::getId)
+                .toList();
+        
+        Map<Long, ReviewAdaptor.StoreRatingInfo> storeRatings = reviewAdaptor.queryStoreRatings(storeIds);
+        
+        // 상위 리뷰 정보를 포함한 리뷰 요약 정보 생성
+        Map<Long, StoreResponse.ReviewSummary> reviewSummaries = storeIds.stream()
+                .collect(Collectors.toMap(
+                    storeId -> storeId,
+                    storeId -> {
+                        ReviewAdaptor.StoreRatingInfo ratingInfo = storeRatings.get(storeId);
+                        List<Review> topReviews = reviewAdaptor.queryTopReviewsByStoreId(storeId, 3);
+                        List<ReviewResponse.ReviewInfo> topReviewInfos = topReviews.stream()
+                                .map(ReviewResponse.ReviewInfo::from)
+                                .toList();
+                        
+                        return StoreResponse.ReviewSummary.from(
+                                ratingInfo != null ? ratingInfo.getAverageRating() : 0.0,
+                                ratingInfo != null ? ratingInfo.getReviewCount() : 0L,
+                                topReviewInfos
+                        );
+                    }
+                ));
+
+        // Store 엔터티를 NearbyStore DTO로 변환 (거리 정보 및 리뷰 정보 포함)
         List<StoreResponse.NearbyStore> nearbyStoreDtos = nearbyStores.stream()
             .map(store -> StoreResponse.NearbyStore.from(
                 store,
-                distanceToStore(userLatitude, userLongitude, store)
+                distanceToStore(userLatitude, userLongitude, store),
+                reviewSummaries.get(store.getId())
             ))
             .toList();
 

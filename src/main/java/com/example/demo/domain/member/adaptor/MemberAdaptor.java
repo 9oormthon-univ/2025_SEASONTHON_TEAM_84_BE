@@ -29,4 +29,17 @@ public class MemberAdaptor {
                 () -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND)
         );
     }
+
+    @Transactional
+    public Member save(Member member) {
+        return repository.save(member);
+    }
+
+    public boolean existsByUsername(String username) {
+        return repository.existsByUsername(username);
+    }
+
+    public boolean existsByNickname(String nickname) {
+        return repository.existsByNickname(nickname);
+    }
 }

@@ -18,6 +18,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -45,18 +47,18 @@ public class SecurityConfig {
         configureCorsAndSecurity(httpSecurity);
         configureAuth(httpSecurity);
         configureOAuth2(httpSecurity);
-        configureExceptionHandling(httpSecurity);
+//        configureExceptionHandling(httpSecurity);
         addFilter(httpSecurity);
 
         return httpSecurity.build();
     }
 
-    private void configureExceptionHandling(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler));
-    }
+//    private void configureExceptionHandling(HttpSecurity httpSecurity) throws Exception {
+//        httpSecurity
+//                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
+//                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//                        .accessDeniedHandler(jwtAccessDeniedHandler));
+//    }
 
 
     private void configureCorsAndSecurity(HttpSecurity httpSecurity) throws Exception {
@@ -106,7 +108,10 @@ public class SecurityConfig {
 
     private RequestMatcher[] authRelatedEndpoints() {
         List<RequestMatcher> requestMatchers = List.of(
-                antMatcher("/api/tokens/**")
+                antMatcher("/api/tokens/**"),
+                antMatcher("/api/auth/signup"),
+                antMatcher("/api/auth/signin"),
+                antMatcher("/api/auth/refresh")
         );
         return requestMatchers.toArray(RequestMatcher[]::new);
     }
@@ -139,6 +144,11 @@ public class SecurityConfig {
         httpSecurity
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
 }
