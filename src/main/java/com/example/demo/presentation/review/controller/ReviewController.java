@@ -59,7 +59,7 @@ public class ReviewController {
     @GetMapping("/stores/{storeId}")
     public ApiResponseDto<ReviewResponse.ReviewList> getStoreReviews(
             @PathVariable Long storeId,
-            @ModelAttribute @Valid ReviewRequest.GetReviews request
+            @RequestBody @Valid ReviewRequest.GetReviews request
     ) {
         ReviewResponse.ReviewList response = getStoreReviewsUseCase.execute(storeId, request);
         return ApiResponseDto.onSuccess(response);

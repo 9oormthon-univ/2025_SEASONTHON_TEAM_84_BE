@@ -45,7 +45,7 @@ public class StoreController {
     })
     @PostMapping("/nearby")
     public ApiResponseDto<StoreResponse.NearbyStoreList> getStoresWithinRadius(
-            @Parameter(description = "반경 검색 조건") @ModelAttribute @Valid StoreRequest.GetNearbyStores request) {
+            @Parameter(description = "반경 검색 조건") @RequestBody @Valid StoreRequest.GetNearbyStores request) {
 
         StoreResponse.NearbyStoreList response = getNearbyStoresUseCase.execute(request);
         return ApiResponseDto.onSuccess(response);
