@@ -332,8 +332,8 @@ public class StoreResponse {
         @Schema(description = "업소명", example = "착한식당")
         private String storeName;
         
-        @Schema(description = "업종", example = "RESTAURANT")
-        private BusinessType businessType;
+        @Schema(description = "업종", example = "Category")
+        private Category category;
         
         @Schema(description = "업종 설명", example = "음식점")
         private String businessTypeDescription;
@@ -363,8 +363,8 @@ public class StoreResponse {
             return NearbyStore.builder()
                 .storeId(store.getId())
                 .storeName(store.getStoreName())
-                .businessType(store.getBusinessType())
-                .businessTypeDescription(store.getBusinessType().getDescription())
+                .category(store.getCategory())
+                .businessTypeDescription(store.getCategory().getDescription())
                 .contactNumber(store.getContactNumber())
                 .address(AddressInfo.from(store.getAddress()))
                 .menus(store.getMenus().stream()
