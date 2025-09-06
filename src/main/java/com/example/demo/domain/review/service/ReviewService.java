@@ -1,8 +1,12 @@
 package com.example.demo.domain.review.service;
 
 import com.example.demo.domain.review.entity.Review;
+import com.example.demo.domain.review.exception.ReviewErrorStatus;
+import com.example.demo.domain.review.exception.ReviewHandler;
 import com.example.demo.domain.review.repository.ReviewRepository;
 import com.example.demo.domain.store.entity.Store;
+import com.example.demo.domain.store.exception.StoreErrorStatus;
+import com.example.demo.domain.store.exception.StoreHandler;
 import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.presentation.store.dto.ReviewRankingDto;
 import com.example.demo.presentation.store.dto.ReviewRequestDto;
@@ -24,7 +28,7 @@ public class ReviewService {
     //리뷰 작성
     public Review createReview(ReviewRequestDto request) {
         Store store = storeRepository.findById(request.getStoreId())
-                .orElseThrow(() -> new IllegalArgumentException("업소를 찾을 수 없습니다."));
+                .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
 
         Review review = Review.builder()
                 .content(request.getContent())
@@ -39,7 +43,7 @@ public class ReviewService {
     // 리뷰 수정
     public Review updateReview(Long reviewId, String content, int rating) {
         Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ReviewHandler(ReviewErrorStatus.REVIEW_NOT_FOUND));
 
         review.updateReview(content, rating);
         return reviewRepository.save(review);
@@ -48,7 +52,7 @@ public class ReviewService {
     // 리뷰 삭제
     public void deleteReview(Long reviewId) {
         Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ReviewHandler(ReviewErrorStatus.REVIEW_NOT_FOUND));
 
         review.softDelete();
         reviewRepository.save(review);
@@ -58,13 +62,16 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public List<Review> getReviewsByStore(Long storeId) {
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new IllegalArgumentException("업소를 찾을 수 없습니다."));
+                .orElseThrow(() -> new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND));
         return reviewRepository.findByStoreAndIsDeletedFalse(store);
     }
 
     //가게별 별점 평균 조회
     @Transactional(readOnly = true)
     public double getAverageRating(Long storeId) {
+        if (!storeRepository.existsById(storeId)) {
+            throw new StoreHandler(StoreErrorStatus.STORE_NOT_FOUND);
+        }
         List<Review> reviews = reviewRepository.findByStoreIdAndIsDeletedFalse(storeId);
         if (reviews.isEmpty()) return 0.0;
 

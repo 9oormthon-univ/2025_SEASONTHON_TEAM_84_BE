@@ -1,6 +1,8 @@
 package com.example.demo.domain.review.entity;
 
 import com.example.demo.domain.auditing.entity.BaseTimeEntity;
+import com.example.demo.domain.review.exception.ReviewErrorStatus;
+import com.example.demo.domain.review.exception.ReviewHandler;
 import com.example.demo.domain.store.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,7 +44,7 @@ public class Review extends BaseTimeEntity {
     private boolean isDeleted = false;
 
     public void setRating(int rating) {
-        if (rating < 1 || rating > 5) throw new IllegalArgumentException("별점은 1~5 사이여야 합니다.");
+        if (rating < 1 || rating > 5) throw new ReviewHandler(ReviewErrorStatus.INVALID_RATING_VALUE);
         this.rating = rating;
     }
 
