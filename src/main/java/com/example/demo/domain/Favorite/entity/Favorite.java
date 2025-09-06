@@ -25,6 +25,7 @@ import lombok.experimental.SuperBuilder;
         }
         )
 public class Favorite extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
