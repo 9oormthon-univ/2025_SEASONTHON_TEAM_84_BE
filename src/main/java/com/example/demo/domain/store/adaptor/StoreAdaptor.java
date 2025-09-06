@@ -13,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
 
 @Adaptor
 @Transactional(readOnly = true)
@@ -66,6 +69,42 @@ public class StoreAdaptor {
         return storeRepository.findStoresWithinRadius(latitude, longitude, radiusKm, pageable);
     }
 
+    /**
+     * 반경 내 업소를 거리순으로 정렬된 ID 기준으로 메뉴까지 fetch join 하여 반환
+     * 반환 순서는 거리 오름차순을 보존한다.
+     */
+    public List<Store> queryStoresWithinRadiusWithMenus(Double latitude,
+                                                        Double longitude,
+                                                        Double radiusKm,
+                                                        int limit) {
+        StoreValidator.validateCoordinates(latitude, longitude);
+        StoreValidator.validateRadius(radiusKm);
+
+        // 거리순으로 정렬된 페이지를 받아 상위 limit만 사용
+        List<Store> pageContent = storeRepository
+            .findStoresWithinRadius(latitude, longitude, radiusKm, Pageable.ofSize(limit))
+            .getContent();
+
+        if (pageContent.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> orderedIds = pageContent.stream()
+            .map(Store::getId)
+            .toList();
+
+        // 메뉴 fetch join으로 한번에 조회
+        List<Store> fetched = storeRepository.findAllByIdInFetchMenus(orderedIds);
+
+        // IN 조회 결과의 순서를 거리순으로 재정렬
+        Map<Long, Integer> orderIndex = new HashMap<>();
+        for (int i = 0; i < orderedIds.size(); i++) {
+            orderIndex.put(orderedIds.get(i), i);
+        }
+        fetched.sort(Comparator.comparingInt(s -> orderIndex.getOrDefault(s.getId(), Integer.MAX_VALUE)));
+        return fetched;
+    }
+
     public Page<Store> queryByBusinessTypeAndRegion(Category businessType,
                                                     String sido, String sigun,
                                                     Pageable pageable) {
@@ -86,6 +125,13 @@ public class StoreAdaptor {
 
     public List<Store> queryStoresWithCoordinates() {
         return storeRepository.findStoresWithCoordinates();
+    }
+
+    /**
+     * 좌표가 있는 활성 업소를 메뉴까지 fetch join으로 조회
+     */
+    public List<Store> queryStoresWithCoordinatesFetchMenus() {
+        return storeRepository.findStoresWithCoordinatesFetchMenus();
     }
 
     public List<Store> queryStoresWithoutCoordinates() {
